@@ -27,6 +27,20 @@ class ChatRepository:
                 return chat.dialogs
             return []
 
+    def get_part2_dialogs(self, chat_id: int) -> list[Dialog]:
+        with Session(self._engine) as session:
+            chat = session.get(Chat, chat_id)
+            if chat:
+                return [d for d in chat.dialogs if d.turn >= 200 ]
+            return []
+
+    def get_history(self, chat_id: int) -> list[str]:
+        with Session(self._engine) as session:
+            chat = session.get(Chat, chat_id)
+            if chat:
+                return [dial.answer for dial in chat.dialogs]
+            return []
+
     def delete(self, chat_id: int) -> None:
         with Session(self._engine) as session:
             chat = session.get(Chat, chat_id)
@@ -54,7 +68,6 @@ if __name__ == "__main__":
     chat = chat_repo.create(chat_props)
     print("Chat: ", chat)
     chat.totalTokens += 10
-    chat.history += "Hey"
 
     chat_repo.update(chat)
 
