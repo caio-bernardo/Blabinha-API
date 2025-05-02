@@ -158,7 +158,7 @@ erDiagram
    Dialog {
       string input
       string answer
-      int turn
+      int section
       int tokens
       Chat chat
    }

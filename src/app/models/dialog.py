@@ -14,7 +14,7 @@ class Dialog(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     input: str = Field(default="")
     answer: str = Field(default="")
-    turn: int = Field(default=100)
+    section: int = Field(default=100)
     tokens: int = Field(default=0)
     chat_id: Optional[int] = Field(default=None, foreign_key="chat.id")
     chat: Optional["Chat"] = Relationship(
@@ -37,7 +37,7 @@ class DialogPublic(SQLModel, table=False):
     id: int
     input: str = Field(description="Input of the user")
     answer: str = Field(description="Answer given by Blabinha")
-    turn: int = Field(description="Section this dialog represents")
+    section: int = Field(description="Section this dialog represents")
     tokens: int = Field(description="How much AI tokens were consumed by the response")
     created_at: datetime.datetime = Field(description="Time of creation")
 

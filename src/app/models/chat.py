@@ -32,7 +32,7 @@ class Chat(SQLModel, table=True):
     strategy: str = Field(default="one-shot")
 
     state: ChatState = Field(default=ChatState.OPEN)
-    current_turn: int = Field(default=100)
+    current_section: int = Field(default=100)
     bonusQnt: int = Field(default=0)
     stars: int = Field(default=0)
     repetition: int = Field(default=0)
@@ -79,4 +79,4 @@ class ChatCreate(SQLModel, table=False):
     model: Optional[str] = Field(default="gpt-4o", description="LLM model to be used by Blabinha")
     # TODO: update this to a enum of strategies
     strategy: Optional[str] = Field(default="one-shot", description="Prompt strategy to be used by Blabinha")
-    turn: Optional[int] = Field(default=100, description="To be the initial section of conversation")
+    initial_section: Optional[int] = Field(default=100, description="To be the initial section of conversation")

@@ -9,14 +9,14 @@ from src.app.models.dialog import Dialog
 class Variaveis:
     def __init__(
         self,
-        turn: int,
+        section: int,
         input: str,
         bonus: int,
         stars: int,
         heroFeatures: list[str],
         repetition: int,
     ):
-        self.turn = turn
+        self.section = section
         self.input = input
         self.answer = ""
         self.bonus = bonus
@@ -48,7 +48,7 @@ class Blab:
         print("\n ##### \n" + caso + " \n #####")
 
     def printSecao(self, variaveis: Variaveis):
-        print("\n-------- " + str(variaveis.turn) + " -------- ")
+        print("\n-------- " + str(variaveis.section) + " -------- ")
 
     # TODO: modify this function
     # Formata a resposta do gpt, envia para criação de logs e retorna a resposta formatada
@@ -75,7 +75,7 @@ class Blab:
         """
         Escolhe qual função chamar conforme o que está na variavel[0] -> seção
         """
-        secao = variaveis.turn
+        secao = variaveis.section
         resposta = variaveis
 
         if 100 <= secao < 200:
@@ -167,7 +167,7 @@ class Blab:
         assert response.choices[0].message.content is not None
         if response.choices[0].message.content.upper().__contains__("FALSE"):
             self.printVerificador("Falou nome", " A pessoa NÃO falou o nome!")
-            if variaveis.turn != 100:
+            if variaveis.section != 100:
                 response = self.client.chat.completions.create(
                     model=self.modelo,
                     messages=[
@@ -305,7 +305,7 @@ class Blab:
         Vai para função de teste se escrito "jaguatirica"
         """
         if variaveis.input == "jaguatirica":
-            variaveis.turn = 300
+            variaveis.section = 300
             return True
         return False
 
@@ -428,7 +428,7 @@ class Blab:
             )
             falaGPT = self.enviaResultados([response], variaveis)
             variaveis.answer = falaGPT
-            variaveis.turn += 10
+            variaveis.section += 10
             return True
 
         else:
@@ -594,7 +594,7 @@ class Blab:
             )
             respostas = [response]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
-            variaveis.turn = 120
+            variaveis.section = 120
             return variaveis
 
         response = self.client.chat.completions.create(
@@ -614,7 +614,7 @@ class Blab:
         )
         respostas = [response]
         variaveis.answer = self.enviaResultados(respostas, variaveis)
-        variaveis.turn = 110
+        variaveis.section = 110
         return variaveis
 
     def secao110(self, variaveis: Variaveis):
@@ -645,7 +645,7 @@ class Blab:
             )
             respostas = [response]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
-            variaveis.turn = 120
+            variaveis.section = 120
             variaveis.repetition = 0
             return variaveis
 
@@ -667,7 +667,7 @@ class Blab:
         )
         respostas = [response]
         variaveis.answer = self.enviaResultados(respostas, variaveis)
-        variaveis.turn = 120
+        variaveis.section = 120
         variaveis.repetition = 0
         return variaveis
 
@@ -700,7 +700,7 @@ class Blab:
         )
         respostas = [response]
         variaveis.answer = self.enviaResultados(respostas, variaveis)
-        variaveis.turn = 130
+        variaveis.section = 130
         variaveis.repetition = 0
         return variaveis
 
@@ -789,7 +789,7 @@ class Blab:
 
         result = self.verificaDesafio(variaveis)
 
-        if result is False and variaveis.turn < 141:
+        if result is False and variaveis.section < 141:
             response2 = self.client.chat.completions.create(
                 model=self.modelo,
                 messages=[
@@ -807,10 +807,10 @@ class Blab:
             )
             respostas = [response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
-            variaveis.turn = variaveis.turn + 1
+            variaveis.section = variaveis.section + 1
             return variaveis
 
-        if result is False and variaveis.turn == 141:
+        if result is False and variaveis.section == 141:
             response2 = self.client.chat.completions.create(
                 model=self.modelo,
                 messages=[
@@ -828,7 +828,7 @@ class Blab:
             )
             respostas = [response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
-            variaveis.turn += 1
+            variaveis.section += 1
             return variaveis
 
         response1 = self.client.chat.completions.create(
@@ -858,7 +858,7 @@ class Blab:
 
         respostas = [response1, response2]
         variaveis.answer = self.enviaResultados(respostas, variaveis)
-        variaveis.turn = 205
+        variaveis.section = 205
         return variaveis
 
     def secao205(self, variaveis: Variaveis):
@@ -882,7 +882,7 @@ class Blab:
         )
 
         variaveis.answer = self.enviaResultados([response], variaveis)
-        variaveis.turn = 210
+        variaveis.section = 210
         return variaveis
 
     def secao210(self, variaveis: Variaveis):
@@ -920,7 +920,7 @@ class Blab:
             ],
         )
 
-        if variaveis.turn in quests:
+        if variaveis.section in quests:
             response1 = self.client.chat.completions.create(
                 model=self.modelo,
                 messages=[
@@ -951,7 +951,7 @@ class Blab:
             )
             resposta = [response, response1, response2]
             variaveis.answer = self.enviaResultados(resposta, variaveis)
-            variaveis.turn += 21
+            variaveis.section += 21
             return variaveis
 
         if not (self.verificaBonus(variaveis)):
@@ -973,7 +973,7 @@ class Blab:
                     ],
                 )
                 resposta = [response, response2]
-                variaveis.turn += 31
+                variaveis.section += 31
                 variaveis.answer = self.enviaResultados(resposta, variaveis)
                 variaveis.bonus += 1
                 return variaveis
@@ -983,7 +983,7 @@ class Blab:
         falaGPT = self.enviaResultados(resposta, variaveis)
         falaRotativa = self.secao225(variaveis)
 
-        variaveis.turn += 1
+        variaveis.section += 1
         variaveis.answer = falaGPT + falaRotativa
 
         return variaveis
@@ -1072,7 +1072,7 @@ class Blab:
             ],
         )
         resposta = [response]
-        variaveis.turn -= 20
+        variaveis.section -= 20
         falaGPT = self.enviaResultados(resposta, variaveis)
         falaRotativa = self.secao225(variaveis)
         variaveis.answer = falaGPT + falaRotativa
@@ -1092,7 +1092,7 @@ class Blab:
         )
         resposta = [response]
         falaGPT = self.enviaResultados(resposta, variaveis)
-        variaveis.turn -= 30
+        variaveis.section -= 30
         falaRotativa = self.secao225(variaveis)
         variaveis.answer = falaGPT + falaRotativa
         return variaveis
@@ -1113,7 +1113,7 @@ class Blab:
 
         result = self.verificaTerminar2(variaveis)
 
-        if result is True and variaveis.turn < 270:
+        if result is True and variaveis.section < 270:
             response2 = self.client.chat.completions.create(
                 model=self.modelo,
                 messages=[
@@ -1131,10 +1131,10 @@ class Blab:
             )
             respostas = [response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
-            variaveis.turn += 10
+            variaveis.section += 10
             return variaveis
 
-        elif result is True and variaveis.turn >= 270:
+        elif result is True and variaveis.section >= 270:
             response2 = self.client.chat.completions.create(
                 model=self.modelo,
                 messages=[
@@ -1152,7 +1152,7 @@ class Blab:
             )
             respostas = [response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
-            variaveis.turn = 295
+            variaveis.section = 295
             return variaveis
         else:
             response1 = self.client.chat.completions.create(
@@ -1175,7 +1175,7 @@ class Blab:
             falaGPT = self.enviaResultados(respostas, variaveis)
             falaRotativa = self.secao225(variaveis)
             variaveis.answer = falaGPT + falaRotativa
-            variaveis.turn = retornaValor(variaveis.turn)
+            variaveis.section = retornaValor(variaveis.section)
             return variaveis
 
     def secao280(self, variaveis: Variaveis):
@@ -1216,8 +1216,8 @@ class Blab:
         falaGPT = self.enviaResultados(respostas, variaveis)
         falaRotativa = self.secao225(variaveis)
         variaveis.answer = falaGPT + falaRotativa
-        variaveis.turn = variaveis.turn - 70
-        print(variaveis.turn)
+        variaveis.section = variaveis.section - 70
+        print(variaveis.section)
         return variaveis
 
     def secao300(self, variaveis: Variaveis):
@@ -1238,7 +1238,7 @@ class Blab:
         )
         falaGPT = self.enviaResultados([response1], variaveis)
         variaveis.answer = falaGPT
-        variaveis.turn = 310
+        variaveis.section = 310
         return variaveis
 
     def secao305(self, variaveis: Variaveis):
@@ -1259,7 +1259,7 @@ class Blab:
         )
         falaGPT = self.enviaResultados([response1], variaveis)
         variaveis.answer = falaGPT
-        variaveis.turn = 310
+        variaveis.section = 310
         return variaveis
 
     def escolheQuestões(self, tamanho):
@@ -1473,7 +1473,7 @@ class Blab:
             )
             resposta = [response1, response2, response3, response4]
             variaveis.answer = self.enviaResultados(resposta, variaveis)
-            variaveis.turn = self.escolheQuestões(qQuestoes)
+            variaveis.section = self.escolheQuestões(qQuestoes)
         else:
             response4 = self.client.chat.completions.create(
                 model=self.modelo,
@@ -1493,7 +1493,7 @@ class Blab:
             )
             resposta = [response1, response2, response3, response4]
             variaveis.answer = self.enviaResultados(resposta, variaveis)
-            variaveis.turn = 352
+            variaveis.section = 352
         return variaveis
 
     def secao320(self, variaveis: Variaveis):
@@ -1513,10 +1513,10 @@ class Blab:
         )
         resposta = [response1]
         variaveis.answer = self.enviaResultados(resposta, variaveis)
-        if variaveis.turn > 322:
-            variaveis.turn += 10
+        if variaveis.section > 322:
+            variaveis.section += 10
         else:
-            variaveis.turn = 350
+            variaveis.section = 350
         return variaveis
 
     def secao330(self, variaveis: Variaveis):
@@ -1536,10 +1536,10 @@ class Blab:
         )
         resposta = [response1]
         variaveis.answer = self.enviaResultados(resposta, variaveis)
-        if variaveis.turn > 333:
-            variaveis.turn += 10
+        if variaveis.section > 333:
+            variaveis.section += 10
         else:
-            variaveis.turn = 350
+            variaveis.section = 350
         return variaveis
 
     def secao340(self, variaveis: Variaveis):
@@ -1559,7 +1559,7 @@ class Blab:
         )
         resposta = [response1]
         variaveis.answer = self.enviaResultados(resposta, variaveis)
-        variaveis.turn = 350
+        variaveis.section = 350
         return variaveis
 
     def getHeroFeature(self, variaveis: Variaveis) -> str:
@@ -1625,7 +1625,7 @@ class Blab:
         variaveis.answer = (
             variaveis.answer + "\nlink para a imagem gerada:  " + imagem.data[0].url
         )
-        variaveis.turn = 371
+        variaveis.section = 371
         # TODO: Need to find a way to save the image
         # manip.saveImages(variaveis[4],variaveis[5],imagem.data[0].url)
         return variaveis

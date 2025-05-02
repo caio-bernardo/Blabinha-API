@@ -34,7 +34,7 @@ class BlabinhaController:
 
             herofeatures = chat.heroFeature.split("||")
             variaveis = Variaveis(
-                turn=chat.current_turn,
+                section=chat.current_section,
                 input=dialog.input,
                 bonus=chat.bonusQnt,
                 stars=chat.stars,
@@ -48,18 +48,18 @@ class BlabinhaController:
                 id=dialog.id,
                 input=resposta.input,
                 answer=resposta.answer,
-                turn=chat.current_turn,
+                section=chat.current_section,
                 tokens=resposta.tokens,
                 chat=ChatPublic.model_validate(chat),
                 created_at=dialog.created_at,
             )
-            chat.current_turn = resposta.turn
+            chat.current_section = resposta.section
             chat.totalTokens += resposta.tokens
             chat.bonusQnt = resposta.bonus
             chat.heroFeature = "||".join(resposta.heroFeatures)
             chat.stars = resposta.stars
             chat.repetition = resposta.repetition
-            if resposta.turn >= 371:
+            if resposta.section >= 371:
                 chat.state = ChatState.CLOSED
 
             self.chat_repo.update(chat)

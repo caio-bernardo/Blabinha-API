@@ -24,7 +24,7 @@ class DialogController:
                 chat=ChatPublic.model_validate(dialog.chat),
                 input=dialog.input,
                 tokens=dialog.tokens,
-                turn=dialog.turn,
+                section=dialog.section,
                 created_at=dialog.created_at,
             )
         except TypeError as e:
@@ -41,7 +41,7 @@ class DialogController:
                 id=dialog.id or -1,
                 answer=dialog.answer,
                 input=dialog.input,
-                turn=dialog.turn,
+                section=dialog.section,
                 tokens=dialog.tokens,
                 created_at=dialog.created_at,
                 chat=ChatPublic.model_validate(owner),

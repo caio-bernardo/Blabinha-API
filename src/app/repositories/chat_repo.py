@@ -31,7 +31,7 @@ class ChatRepository:
         with Session(self._engine) as session:
             chat = session.get(Chat, chat_id)
             if chat:
-                return [d for d in chat.dialogs if d.turn >= 200]
+                return [d for d in chat.dialogs if d.section >= 200]
             return []
 
     def get_history(self, chat_id: int) -> list[str]:
