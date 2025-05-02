@@ -7,6 +7,7 @@ from typing import List
 DialogPublic.model_rebuild()
 ChatPublicWithDialogs.model_rebuild()
 
+
 class ChatController:
     """Controls requests interaction with the database"""
 
@@ -31,7 +32,7 @@ class ChatController:
                 totalTokens=new_chat.totalTokens,
                 created_at=new_chat.created_at,
                 updated_at=new_chat.updated_at,
-                dialogs=[]
+                dialogs=[],
             )
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -55,7 +56,7 @@ class ChatController:
                     totalTokens=chat.totalTokens,
                     created_at=chat.created_at,
                     updated_at=chat.updated_at,
-                    dialogs=[DialogPublic.model_validate(d) for d in dialogs]
+                    dialogs=[DialogPublic.model_validate(d) for d in dialogs],
                 )
         except TypeError as e:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

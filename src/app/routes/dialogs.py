@@ -12,6 +12,7 @@ from src.app.models.dialog import DialogCreate, DialogPublic, DialogPublicWithCh
 
 router = APIRouter()
 
+
 @router.get(
     "/dialogs/{id}",
     response_model=DialogPublicWithChat,
@@ -26,6 +27,7 @@ async def get_dialog(
 
 
 api_key_header = HTTPBearer()
+
 
 @router.post(
     "/dialogs",

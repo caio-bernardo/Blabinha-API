@@ -1,7 +1,12 @@
 from fastapi import HTTPException, status
 from src.app.blabinha import Blab, Variaveis
 from src.app.models.chat import ChatPublic, ChatState
-from src.app.models.dialog import Dialog, DialogCreate, DialogPublic, DialogPublicWithChat
+from src.app.models.dialog import (
+    Dialog,
+    DialogCreate,
+    DialogPublic,
+    DialogPublicWithChat,
+)
 from src.app.models.chat import Chat
 from src.app.repositories.chat_repo import ChatRepository
 from src.app.repositories.dialog_repo import DialogRepository
@@ -14,7 +19,9 @@ class BlabinhaController:
         self.chat_repo = chat_repo
         self.dialog_repo = dialog_repo
 
-    async def create_dialog(self, props: DialogCreate, api_key: str) -> DialogPublicWithChat:
+    async def create_dialog(
+        self, props: DialogCreate, api_key: str
+    ) -> DialogPublicWithChat:
         try:
             dialog: Dialog = self.dialog_repo.create(props)
             assert dialog.id is not None
@@ -30,7 +37,7 @@ class BlabinhaController:
                 bonus=chat.bonusQnt,
                 stars=chat.stars,
                 repetition=chat.repetition,
-                heroFeatures=herofeatures
+                heroFeatures=herofeatures,
             )
             resposta = blab.escolheParte(variaveis)
 
@@ -41,7 +48,7 @@ class BlabinhaController:
                 turn=chat.current_turn,
                 tokens=resposta.tokens,
                 chat=ChatPublic.model_validate(chat),
-                created_at=dialog.created_at
+                created_at=dialog.created_at,
             )
             chat.current_turn = resposta.turn
             chat.totalTokens += resposta.tokens
@@ -49,7 +56,7 @@ class BlabinhaController:
             chat.heroFeature = "||".join(resposta.heroFeatures)
             chat.stars = resposta.stars
             chat.repetition = resposta.repetition
-            if (resposta.turn >= 371):
+            if resposta.turn >= 371:
                 chat.state = ChatState.CLOSED
 
             self.chat_repo.update(chat)
@@ -58,5 +65,5 @@ class BlabinhaController:
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Internal server error: {str(e)}"
+                detail=f"Internal server error: {str(e)}",
             )

@@ -17,7 +17,9 @@ class Dialog(SQLModel, table=True):
     turn: int = Field(default=100)
     tokens: int = Field(default=0)
     chat_id: Optional[int] = Field(default=None, foreign_key="chat.id")
-    chat: Optional["Chat"] = Relationship(back_populates="dialogs", sa_relationship_kwargs={"lazy": "joined"})
+    chat: Optional["Chat"] = Relationship(
+        back_populates="dialogs", sa_relationship_kwargs={"lazy": "joined"}
+    )
 
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
 
@@ -38,6 +40,7 @@ class DialogPublic(SQLModel, table=False):
     turn: int
     tokens: int
     created_at: datetime.datetime
+
 
 class DialogPublicWithChat(DialogPublic):
     chat: Optional["ChatPublic"] = None

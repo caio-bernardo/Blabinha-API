@@ -5,6 +5,7 @@ Revises: 3c6d515eb1d1
 Create Date: 2025-04-29 22:50:08.586563
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -13,8 +14,8 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '6355c8b832a0'
-down_revision: Union[str, None] = '3c6d515eb1d1'
+revision: str = "6355c8b832a0"
+down_revision: Union[str, None] = "3c6d515eb1d1"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

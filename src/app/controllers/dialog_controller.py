@@ -6,6 +6,7 @@ from src.app.repositories.dialog_repo import DialogRepository
 
 DialogPublicWithChat.model_rebuild()
 
+
 class DialogController:
     """Controls request interaction with Database"""
 
@@ -43,7 +44,7 @@ class DialogController:
                 turn=dialog.turn,
                 tokens=dialog.tokens,
                 created_at=dialog.created_at,
-                chat=ChatPublic.model_validate(owner)
+                chat=ChatPublic.model_validate(owner),
             )
         except ValidationError as e:
             raise HTTPException(

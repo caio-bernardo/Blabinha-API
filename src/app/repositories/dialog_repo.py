@@ -44,7 +44,8 @@ class DialogRepository:
                 raise ValueError("Invalid chat id passed to the function")
             return chat
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     from sqlmodel import create_engine, SQLModel
     from src.app.repositories.chat_repo import ChatRepository
     from ..models import *

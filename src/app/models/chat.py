@@ -20,7 +20,11 @@ class Chat(SQLModel, table=True):
     """Chat database model"""
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    dialogs: List['Dialog'] = Relationship(back_populates="chat", cascade_delete=True, sa_relationship_kwargs={"lazy": "joined"})
+    dialogs: List["Dialog"] = Relationship(
+        back_populates="chat",
+        cascade_delete=True,
+        sa_relationship_kwargs={"lazy": "joined"},
+    )
 
     # TODO: update this to a enum of models
     model: str = Field(default="gpt-4o")
@@ -31,7 +35,7 @@ class Chat(SQLModel, table=True):
     current_turn: int = Field(default=100)
     bonusQnt: int = Field(default=0)
     stars: int = Field(default=0)
-    repetition: int = Field(default=0) # qts vezes uma pergunta foi repetida
+    repetition: int = Field(default=0)  # qts vezes uma pergunta foi repetida
     heroFeature: str = Field(default="")
     totalTokens: int = Field(default=0)
 
@@ -44,6 +48,7 @@ class Chat(SQLModel, table=True):
 
 class ChatPublic(SQLModel, table=False):
     """Public Chat model (without sensitive fields)"""
+
     id: int
 
     # TODO: update this to a enum of models
@@ -60,6 +65,7 @@ class ChatPublic(SQLModel, table=False):
 
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
 
 class ChatPublicWithDialogs(ChatPublic):
     dialogs: List["DialogPublic"] = []

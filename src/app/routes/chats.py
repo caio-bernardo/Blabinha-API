@@ -12,6 +12,7 @@ from typing import List
 
 router = APIRouter()
 
+
 @router.get(
     "/chats/{id}",
     response_model=ChatPublicWithDialogs,
