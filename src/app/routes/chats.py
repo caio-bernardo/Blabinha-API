@@ -1,20 +1,20 @@
 from fastapi import APIRouter, status
 from fastapi.param_functions import Depends
+from pydantic import TypeAdapter
 
 from src.app import controllers
 from src.app.controllers.chat_controller import ChatController
 from src.app.dependencies import get_chat_controller
-from src.app.models.chat import ChatCreate, ChatPublic
-from src.app.models.dialog import DialogPublic
+from src.app.models.chat import ChatCreate, ChatPublic, ChatPublicWithDialogs
+from src.app.models.dialog import DialogPublic, DialogPublicWithChat
 
 from typing import List
 
 router = APIRouter()
 
-
 @router.get(
     "/chats/{id}",
-    response_model=ChatPublic,
+    response_model=ChatPublicWithDialogs,
     status_code=status.HTTP_200_OK,
     tags=["chats"],
 )
@@ -38,7 +38,7 @@ async def get_dialogs_of_chat(
 
 @router.post(
     "/chats",
-    response_model=ChatPublic,
+    response_model=ChatPublicWithDialogs,
     status_code=status.HTTP_201_CREATED,
     tags=["chats"],
 )

@@ -2,6 +2,8 @@ import datetime
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 
+from src.app.models.chat import ChatPublicWithDialogs
+
 if TYPE_CHECKING:
     from .chat import Chat, ChatPublic
 
@@ -15,7 +17,7 @@ class Dialog(SQLModel, table=True):
     turn: int = Field(default=100)
     tokens: int = Field(default=0)
     chat_id: Optional[int] = Field(default=None, foreign_key="chat.id")
-    chat: Optional["Chat"] = Relationship(back_populates="dialogs")
+    chat: Optional["Chat"] = Relationship(back_populates="dialogs", sa_relationship_kwargs={"lazy": "joined"})
 
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
 
@@ -33,7 +35,9 @@ class DialogPublic(SQLModel, table=False):
     id: int
     input: str
     answer: str
-    turn: int = Field(default=100)
-    tokens: int = Field(default=0)
-    chat: Optional["ChatPublic"] = Relationship(back_populates="dialogs")
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
+    turn: int
+    tokens: int
+    created_at: datetime.datetime
+
+class DialogPublicWithChat(DialogPublic):
+    chat: Optional["ChatPublic"] = None
