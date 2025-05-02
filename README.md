@@ -25,6 +25,32 @@ Primeiro crie um chat em `/api/chats`, configurando modelo e estratégia da conv
 > É preciso fornecer uma chave de API para o modelo de LLM selecionado, em todos os diálogos.
 > E garantir que essa chave permaneça válida e com tokens disponíveis durante **toda** a vida do chat.
 
+
+## Diagrama da base de dados
+
+```mermaid
+erDiagram
+   Chat ||--o{ Dialog : has
+   Chat {
+      string model
+      string strategy
+      State state
+      string bonusQnt
+      string stars
+      string heroFeature
+      int totalTokens
+      string history
+      Dialog[] dialogs
+   }
+   Dialog {
+      string input
+      string answer
+      int turn
+      int tokens
+      Chat chat
+   }
+```
+
 ## Como executar
 
 Recomenda-se usar o [`uv` package manager](https://docs.astral.sh/uv/).
@@ -41,3 +67,16 @@ Ou também use o Taskipy para executar o projeto:
 task dev
 ```
 Veja [pyproject.toml](pyproject.toml) para ver outros comandos disponíveis.
+
+## Executando migrações
+
+Ao fazer alterações nos modelos e atualizar a base de dados é preciso executar comandos do `alembic`. Veja o exemplo:
+```bash
+alembic revision --autogenerate -m "campo adicionado na tabela x"
+alembic upgrade head
+```
+
+Para reverter alterações:
+```bash
+alembic downgrade -1
+```
