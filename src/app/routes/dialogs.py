@@ -15,6 +15,7 @@ router = APIRouter()
 
 @router.get(
     "/dialogs/{id}",
+    description="Gets an existing dialog with it owner chat",
     response_model=DialogPublicWithChat,
     status_code=status.HTTP_200_OK,
     tags=["dialogs"],
@@ -31,6 +32,7 @@ api_key_header = HTTPBearer()
 
 @router.post(
     "/dialogs",
+    description="Makes a interaction with Blabinha in a specific chat context, returning the response and the update state of the chat",
     response_model=DialogPublicWithChat,
     status_code=status.HTTP_201_CREATED,
     tags=["dialogs"],

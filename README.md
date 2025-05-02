@@ -20,7 +20,18 @@ Um servidor HTTP REST, que expõe o chat-bot Blabinha através da rede, como um 
 ## Como usar a API
 
 1. Crie um chat com `POST URL/chats`, opcionalmente, com o modelo de LLM desejado, a estratégia de prompt preferida, e a seção que se deseja começar, para iniciar do 'zero' o valor padrão é `100`. A resposta será em _json_, no modelo `Chat`, com o atributo de `id`. **Armazene esse id**;
-2. Interaja com o chat por meio de diálogos, com `POST URL/dialogs`, enviando o **id do chat** e o **input desejado**. A resposta será em _json_, no modelo `Dialog`, que contém a resposta gerada por IA, informações sobre aquela seção, e o `Chat` pertencente atualizado.
+2. Interaja com o chat por meio de diálogos, com `POST URL/dialogs`, enviando o **id do chat** e o **input desejado**, bem como a chave de API do modelo de LLM escolhido, através do _headers_ no campo `Authorization`, com o formato _Bearer_. A resposta será em _json_, no modelo `Dialog`, que contém a resposta gerada por IA, informações sobre aquela seção, e o `Chat` pertencente atualizado.
+
+Veja um exemplo:
+
+- Criando um chat
+```bash
+curl -X POST http://localhost:8000/chats -d '{"model": "gpt-4o"}' -H 'Content-Type: application/json'
+```
+- Criando dialogs
+```bash
+curl -X POST http://localhost:8000/dialogs -d '{"chat_id": X, "input": "Oi"}' -H 'Content-Type: application/json' -H 'Authorization: Bearer XXXXXXXX'
+```
 
 Para mais informações refira-se à documentação em `URL/docs`.
 
@@ -30,43 +41,106 @@ Para mais informações refira-se à documentação em `URL/docs`.
 
 1. Clone este repositório: `git clone git@github.com:caio-bernardo/Blabinha2-API.git`;
 1.2. **Recomenda-se fortemenete** o uso do package manager `uv`, a instalação é simples: `pip install -g uv`, se deseja mais informações [clique aqui](https://docs.astral.sh/uv/);
-2. Para criar o ambiente virtual execute `uv venv venv`; 
+2. Para criar o ambiente virtual execute `uv venv venv`;
 2.2 Ative o ambiente: `source venv/bin/activate`;
 3. Instale as dependências do projeto: `uv install`;
-4. Para rodar o projeto, 
+4. Para rodar o projeto em modo de produção: `task run`.
 
 ## Desenvolvendo a API
 
+1. Clone este repositório: `git clone git@github.com:caio-bernardo/Blabinha2-API.git`;
+1.2. **Recomenda-se fortemenete** o uso do package manager `uv`, a instalação é simples: `pip install -g uv`, se deseja mais informações [clique aqui](https://docs.astral.sh/uv/);
+2. Para criar o ambiente virtual execute `uv venv venv`;
+2.2 Ative o ambiente: `source venv/bin/activate`;
+3. Instale as dependências do projeto: `uv install`;
+4. Para rodar o projeto em mode de desenvolvimento: `task dev`, desse modo, alterações vão atualizar imediatamente.
 
+> Lembre-se de criar uma nova _branch_, quando for fazer alterações ao código.
 
 ### Fazendo migrações
 
-## Endpoints
+Ao fazer alterações nos modelos que representam tabelas, é preciso atualizar a base de dados, chamamos isso de **migrações**.
+Para fazer isso é preciso executar o comando `alembic`. Veja o exemplo:
 
-- GET `/docs`: retorna informações sobre a API
+Para fazer uma migração:
+```bash
+alembic revision --autogenerate -m "campo adicionado na tabela x"
+alembic upgrade head
+```
 
-### Chat Endpoint
-- GET `/api/chats/:id`: retorna informações sobre um chat
-- POST `/api/chats`: cria um novo chat
-- DELETE `/api/chats/:id`: deleta um chat
-- GET `/api/chats/:id/dialogs`: retorna uma lista de diálogos associados ao chat
+Para reverter alterações:
+```bash
+alembic downgrade -1
+```
+### Estrutura do projeto
+```
+.
+├── db
+├── migrations
+├── src/
+│   ├── app/
+│   │   ├── blabinha/
+│   │   │   └── Blab.py
+│   │   ├── controllers/
+│   │   │   ├── blabinha_controller.py
+│   │   │   ├── chat_controller.py
+│   │   │   └── dialog_controller.py
+│   │   ├── models/
+│   │   │   ├── chat.py
+│   │   │   ├── dialog.py
+│   │   │   └── user.py
+│   │   ├── repositories/
+│   │   │   ├── chat_repo.py
+│   │   │   └── dialog_repo.py
+│   │   ├── routes/
+│   │   │   ├── chats.py
+│   │   │   └── dialogs.py
+│   │   ├── database.py
+│   │   └── dependencies.py
+│   └── main.py
+├── alembic.ini
+├── pyproject.toml
+└── README.md
+```
 
-### Dialog Endpoint
-- GET `/api/dialogs/:id`: retorna informações sobre um diálogo
-- POST `/api/dialogs`: cria um novo diálogo
-- DELETE `/api/dialogs/:id`: deleta um diálogo
+#### Diretórios principais
+- `db/`: Armazena o banco de dados SQLite
+- `migrations/`: Contém os scripts de migração do Alembic
+- `src/`: Código-fonte principal da aplicação
 
-## Como utilizar
+#### Estrutura do código-fonte
+- `src/main.py`: Ponto de entrada da aplicação, configura e inicializa o servidor FastAPI
+- `src/app/database.py`: Configuração da conexão com o banco de dados
+- `src/app/dependencies.py`: Define dependências injetáveis para os endpoints (lógica)
 
-Primeiro crie um chat em `/api/chats`, configurando modelo e estratégia da conversa. Em seguida, intereja com o chat usando `/api/dialogs`. Quando o chat se encerrar o _status_ do chat será atualizado para `closed`.
+#### Blabinha (núcleo)
+- `src/app/blabinha/Blab.py`: Implementação principal do chatbot Blabinha
 
-> [!note] Nota:
-> É preciso fornecer uma chave de API para o modelo de LLM selecionado, em todos os diálogos.
-> E garantir que essa chave permaneça válida e com tokens disponíveis durante **toda** a vida do chat.
+#### Controllers
+- `src/app/controllers/blabinha_controller.py`: Gerencia a lógica de negócio do chatbot
+- `src/app/controllers/chat_controller.py`: Gerencia as interações entre requisições e a base de dados do chat
+- `src/app/controllers/dialog_controller.py`: Gerencia as interações entre requisições e a base de dados do diálogos
 
+#### Models
+- `src/app/models/chat.py`: Define o modelo de dados para chats
+- `src/app/models/dialog.py`: Define o modelo de dados para diálogos
+- `src/app/models/user.py`: Define o modelo de usuário do sistema
+
+#### Repositories
+- `src/app/repositories/chat_repo.py`: Implementa operações de CRUD para chats
+- `src/app/repositories/dialog_repo.py`: Implementa operações de CRUD para diálogos
+
+#### Routes
+- `src/app/routes/chats.py`: Define os endpoints relacionados aos chats
+- `src/app/routes/dialogs.py`: Define os endpoints relacionados aos diálogos
+
+#### Arquivos de configuração
+- `alembic.ini`: Configuração do Alembic para migrações de banco de dados
+- `pyproject.toml`: Configuração do projeto, dependências e metadados
 
 ## Diagrama da base de dados
 
+Segue um diagrama da base de dados:
 ```mermaid
 erDiagram
    Chat ||--o{ Dialog : possui
@@ -88,34 +162,4 @@ erDiagram
       int tokens
       Chat chat
    }
-```
-
-## Como executar
-
-Recomenda-se usar o [`uv` package manager](https://docs.astral.sh/uv/).
-
-Para rodar o projeto siga os seguintes passos:
-
-1. Crie um ambiente virtual com o comando `python -m venv venv` ou `uv venv`.
-2. Ative o ambiente virtual com o comando `source venv/bin/activate` (Linux/Mac) ou `venv\Scripts\activate` (Windows).
-3. Instale as dependências com o comando `pip install -r requirements.txt` ou  `uv install`.
-4. Execute o servidor com o comando `fastapi dev src/main.py`.
-
-Ou também use o Taskipy para executar o projeto:
-```bash
-task dev
-```
-Veja [pyproject.toml](pyproject.toml) para ver outros comandos disponíveis.
-
-## Executando migrações
-
-Ao fazer alterações nos modelos e atualizar a base de dados é preciso executar comandos do `alembic`. Veja o exemplo:
-```bash
-alembic revision --autogenerate -m "campo adicionado na tabela x"
-alembic upgrade head
-```
-
-Para reverter alterações:
-```bash
-alembic downgrade -1
 ```

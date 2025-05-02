@@ -12,6 +12,11 @@ dependencies = [
     "sqlmodel>=0.0.24",
 ]
 
+[dependency-groups]
+dev = [
+    "taskipy>=1.14.1",
+]
+
 [tool.taskipy.tasks]
 dev = "fastapi dev src/main.py"
 run = "fastapi run src/main.py"

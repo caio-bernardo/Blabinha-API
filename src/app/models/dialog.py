@@ -27,20 +27,21 @@ class Dialog(SQLModel, table=True):
 class DialogCreate(SQLModel, table=False):
     """Dialog creation model"""
 
-    chat_id: int  # TODO: think about using a chat name instead to keep id secret
-    input: str
+    chat_id: int = Field(description="Chat which the dialog will belong to") # TODO: think about using a chat name instead to keep id secret
+    input: str = Field(description="Input to be send to Blabinha")
 
 
 class DialogPublic(SQLModel, table=False):
     """Dialog public model (without sensitive fields)"""
 
     id: int
-    input: str
-    answer: str
-    turn: int
-    tokens: int
-    created_at: datetime.datetime
+    input: str = Field(description="Input of the user")
+    answer: str = Field(description="Answer given by Blabinha")
+    turn: int = Field(description="Section this dialog represents")
+    tokens: int = Field(description="How much AI tokens were consumed by the response")
+    created_at: datetime.datetime = Field(description="Time of creation")
 
 
 class DialogPublicWithChat(DialogPublic):
-    chat: Optional["ChatPublic"] = None
+    """Dialog public model with it owner chat"""
+    chat: Optional["ChatPublic"] = Field(default=None, description="Chat owner of the dialog")

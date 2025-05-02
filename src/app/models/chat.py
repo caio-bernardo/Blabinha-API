@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class ChatState(Enum):
-    """Represent possible states of a chat"""
+    """Represent possible states of a chat: either open or closed"""
 
     OPEN = "open"
     CLOSED = "closed"
@@ -35,7 +35,7 @@ class Chat(SQLModel, table=True):
     current_turn: int = Field(default=100)
     bonusQnt: int = Field(default=0)
     stars: int = Field(default=0)
-    repetition: int = Field(default=0)  # qts vezes uma pergunta foi repetida
+    repetition: int = Field(default=0)
     heroFeature: str = Field(default="")
     totalTokens: int = Field(default=0)
 
@@ -52,30 +52,31 @@ class ChatPublic(SQLModel, table=False):
     id: int
 
     # TODO: update this to a enum of models
-    model: str
+    model: str = Field(description="Model of the LLM used by Blabinha")
     # TODO: update this to a enum of strategies
-    strategy: str
-    state: ChatState
-    bonusQnt: int
-    stars: int
-    repetition: int
-    heroFeature: str
+    strategy: str = Field(description="Prompt strategy used by Blabinha")
+    state: ChatState = Field(description="Current state of the chat. A closed chat won't accept dialogs")
+    bonusQnt: int = Field(description="Quantity of bonus since last dialog")
+    stars: int = Field(description="Quantity of stars since last dialog")
+    repetition: int = Field(description="How many time current section has been repeated")
+    heroFeature: str = Field(description="all features of the hero joined by '||'")
 
-    totalTokens: int
+    totalTokens: int = Field(description="How many tokens this chat has consumed (sum of all dialog tokens)")
 
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    created_at: datetime.datetime = Field(description="time of creation")
+    updated_at: datetime.datetime = Field(description="time of last update")
 
 
 class ChatPublicWithDialogs(ChatPublic):
-    dialogs: List["DialogPublic"] = []
+    """Public model of chat with a list of all dialogs owned by the chat"""
+    dialogs: List["DialogPublic"] = Field(default=[], description="List of all dialogs owned by this chat")
 
 
 class ChatCreate(SQLModel, table=False):
-    """Chat creation model (necessary for creation)"""
+    """Chat creation model (necessary for creation) but most field are optional"""
 
     # TODO: update this to a enum of models
-    model: Optional[str] = Field(default="gpt-4o")
+    model: Optional[str] = Field(default="gpt-4o", description="LLM model to be used by Blabinha")
     # TODO: update this to a enum of strategies
-    strategy: Optional[str] = Field(default="one-shot")
-    turn: Optional[int] = Field(default=100)
+    strategy: Optional[str] = Field(default="one-shot", description="Prompt strategy to be used by Blabinha")
+    turn: Optional[int] = Field(default=100, description="To be the initial section of conversation")

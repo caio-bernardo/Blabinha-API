@@ -13,6 +13,7 @@ from src.app.repositories.dialog_repo import DialogRepository
 
 
 class BlabinhaController:
+    """Controls request iteractions with Blabinha agent"""
     def __init__(
         self, chat_repo: ChatRepository, dialog_repo: DialogRepository
     ) -> None:
@@ -28,6 +29,7 @@ class BlabinhaController:
             chat: Chat | None = self.chat_repo.get(dialog.chat_id or -1)
             assert chat
 
+            # Envia para Blabinha
             blab = Blab(api_key, chat.model, self.chat_repo, chat.id or -1)
 
             herofeatures = chat.heroFeature.split("||")
@@ -41,6 +43,7 @@ class BlabinhaController:
             )
             resposta = blab.escolheParte(variaveis)
 
+            # Update database and create response
             dialog_res = DialogPublicWithChat(
                 id=dialog.id,
                 input=resposta.input,

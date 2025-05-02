@@ -16,6 +16,6 @@ app_runner.include_router(chats.router)
 app_runner.include_router(dialogs.router)
 
 
-@app_runner.get("/health")
+@app_runner.get("/health", summary="Check API health", description="Check if API is on-line")
 async def health():
     return {"message": "Blabinha api is online"}
