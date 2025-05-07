@@ -40,11 +40,11 @@ Para mais informações refira-se à documentação em `URL/docs`.
 ## Como rodar a API
 
 1. Clone este repositório: `git clone git@github.com:caio-bernardo/Blabinha2-API.git`;
-1.2. **Recomenda-se fortemenete** o uso do package manager `uv`, a instalação é simples: `pip install -g uv`, se deseja mais informações [clique aqui](https://docs.astral.sh/uv/);
-2. Para criar o ambiente virtual execute `uv venv venv`;
-2.2 Ative o ambiente: `source venv/bin/activate`;
-3. Instale as dependências do projeto: `uv install`;
-4. Para rodar o projeto em modo de produção: `task run`.
+1.2. **Recomenda-se fortemenete** o uso do package manager `uv`, a instalação é simples: `pip install uv`, se deseja mais informações [clique aqui](https://docs.astral.sh/uv/);
+2. Rode o comando `uv sync`;
+3. Ative o Ambiente virtual `.venv\Scripts\Activate.ps1`;
+4. Crie um arquivo chamado ".env" e cole dentro dele esse comando 'DATABASE_URL=sqlite:///db/database.db';
+5. Para rodar o projeto em modo de produção: `task run`.
 
 ## Desenvolvendo a API
 
