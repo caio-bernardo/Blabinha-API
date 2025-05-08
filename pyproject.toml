@@ -1,7 +1,7 @@
 [project]
 name = "blabinha2-api"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "Serviço de API do chat-bot Blabinha"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -14,6 +14,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "ruff>=0.11.8",
     "taskipy>=1.14.1",
 ]
 
@@ -21,5 +22,9 @@ dev = [
 dev = "fastapi dev src/main.py"
 run = "fastapi run src/main.py"
 test = "pytest"
-lint = "black --check ."
-format = "black ."
+lint = "ruff check"
+format = "ruff format"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"

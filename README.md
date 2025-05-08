@@ -37,23 +37,27 @@ Para mais informações refira-se à documentação em `URL/docs`.
 
 > `URL` refere-se ao endereço da que API está rodando, se ela estiver localmente, será algo como `http://localhost:8000`, ou similar. Em produção o endereço será fornecido pelo provedor.
 
+### Windows
+
+Antes de tudo verifique se o comando utilitário `curl` está instalado:
+```bash
+curl --version
+```
+Se sim, tudo está certo :smile, você pode seguir os exemplos anteriores. Caso contrário, siga este [link](https://curl.se/windows/), e instale o `curl` na sua máquina.
+
+Ou...Utilize aplicação de software que testem requisições HTTP, como [Postman](https://www.postman.com/downloads/) ou [Insomnia](https://insomnia.rest/download).
+
 ## Como rodar a API
 
 1. Clone este repositório: `git clone git@github.com:caio-bernardo/Blabinha2-API.git`;
 1.2. **Recomenda-se fortemenete** o uso do package manager `uv`, a instalação é simples: `pip install uv`, se deseja mais informações [clique aqui](https://docs.astral.sh/uv/);
-2. Rode o comando `uv sync`;
-3. Ative o Ambiente virtual `.venv\Scripts\Activate.ps1`;
-4. Crie um arquivo chamado ".env" e cole dentro dele esse comando 'DATABASE_URL=sqlite:///db/database.db';
-5. Para rodar o projeto em modo de produção: `task run`.
+2. Crie um arquivo chamado `.env` seguindo o exemplo em `.env.example`. Preencha as variaveis de ambiente.
+3. Com o comando `uv` instaldo (verifique com `uv --version`), rode o projeto com `uv run task run`. Isso deve criar um ambiente virtual, instalar as dependências e rodar o projeto em **modo de produção**.
 
 ## Desenvolvendo a API
 
-1. Clone este repositório: `git clone git@github.com:caio-bernardo/Blabinha2-API.git`;
-1.2. **Recomenda-se fortemenete** o uso do package manager `uv`, a instalação é simples: `pip install -g uv`, se deseja mais informações [clique aqui](https://docs.astral.sh/uv/);
-2. Para criar o ambiente virtual execute `uv venv venv`;
-2.2 Ative o ambiente: `source venv/bin/activate`;
-3. Instale as dependências do projeto: `uv install`;
-4. Para rodar o projeto em mode de desenvolvimento: `task dev`, desse modo, alterações vão atualizar imediatamente.
+1. Siga as instruções do tópico anterior
+1. Para rodar a aplicação em **modo de desenvolvimento**, execute `uv run task dev`
 
 > Lembre-se de criar uma nova _branch_, quando for fazer alterações ao código.
 
