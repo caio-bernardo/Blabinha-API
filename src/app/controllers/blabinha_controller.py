@@ -63,7 +63,7 @@ class BlabinhaController:
                 chat.state = ChatState.CLOSED
 
             self.chat_repo.update(chat)
-
+            self.dialog_repo.update(dialog)
             return dialog_res
         except Exception as e:
             raise HTTPException(
