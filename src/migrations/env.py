@@ -3,6 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from blabinha_api.models import *  # noqa: F403
+import blabinha_api.config as api_config
 from sqlmodel import SQLModel
 from alembic import context
 
@@ -39,7 +40,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = config.get_main_option("sqlalchemy.url", api_config.DATABASE_URL)
     context.configure(
         url=url,
         target_metadata=target_metadata,
