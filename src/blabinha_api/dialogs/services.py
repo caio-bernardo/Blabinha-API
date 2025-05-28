@@ -7,8 +7,8 @@ from ..chats.schemas import ChatState
 from .models import Dialog
 from .schemas import DialogCreate
 
-async def interact(session: Session, props: DialogCreate, api_key: str) -> Dialog:
 
+async def interact(session: Session, props: DialogCreate, api_key: str) -> Dialog:
     dialog = await create(session, props)
     assert dialog.chat is not None, "Assertion Failed: dialog without chat parent"
     chat = dialog.chat
@@ -44,6 +44,7 @@ async def interact(session: Session, props: DialogCreate, api_key: str) -> Dialo
     session.refresh(chat)
     return dialog
 
+
 async def create(session: Session, props: DialogCreate) -> Dialog:
     dbdialog = Dialog.model_validate(props)
     session.add(dbdialog)
@@ -53,5 +54,7 @@ async def create(session: Session, props: DialogCreate) -> Dialog:
 
 
 def get_all_part_two(session: Session, chat_id: uuid.UUID) -> list[Dialog]:
-    statement = select(Dialog).where(Dialog.chat_id == chat_id, Dialog.section >= 200, Dialog.section < 300)
+    statement = select(Dialog).where(
+        Dialog.chat_id == chat_id, Dialog.section >= 200, Dialog.section < 300
+    )
     return list(session.exec(statement))

@@ -1,5 +1,3 @@
-
-
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 import uuid
@@ -21,8 +19,10 @@ class DialogPublic(DialogBase):
     id: uuid.UUID
     created_at: datetime
 
+
 class DialogPublicWithChat(DialogPublic):
     chat: Optional["ChatPublic"] = None
+
 
 class DialogCreate(SQLModel):
     chat_id: uuid.UUID

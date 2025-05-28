@@ -34,10 +34,7 @@ class Variaveis:
 
 
 class Blab:
-
-    def __init__(
-        self, api_key: str, chat: Chat, session: Session
-    ):
+    def __init__(self, api_key: str, chat: Chat, session: Session):
         self.chat_id = chat.id
         self.modelo = chat.model
         self.strategy = chat.strategy
@@ -58,7 +55,6 @@ class Blab:
     # TODO: modify this function
     # Formata a resposta do gpt, envia para criação de logs e retorna a resposta formatada
     def enviaResultados(self, respostas, variaveis: Variaveis) -> str:
-
         # Inicio as duas variaveis
         falaGPT_total: str = ""
         tokens = 0
@@ -194,7 +190,6 @@ class Blab:
 
     # Verifica se a pessoa pediu para repetir
     def verificaRepete(self, variaveis):
-
         response = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -264,7 +259,6 @@ class Blab:
 
     # Verifica se a pessoa entendeu as regras
     def verificaRegras(self, variaveis):
-
         response = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -710,12 +704,10 @@ class Blab:
         return variaveis
 
     def secao130(self, variaveis):
-
         if self.verificaRepete(variaveis) is True:
             return variaveis
 
         if self.verificaDesafio(variaveis) is False:
-
             response = self.client.chat.completions.create(
                 model=self.modelo,
                 messages=[
@@ -791,7 +783,6 @@ class Blab:
             return variaveis
 
     def secao140(self, variaveis: Variaveis):
-
         result = self.verificaDesafio(variaveis)
 
         if result is False and variaveis.section < 141:
@@ -867,7 +858,6 @@ class Blab:
         return variaveis
 
     def secao205(self, variaveis: Variaveis):
-
         if self.verificaRegras(variaveis) is False:
             return variaveis
 
@@ -960,7 +950,6 @@ class Blab:
             return variaveis
 
         if not (self.verificaBonus(variaveis)):
-
             if variaveis.bonus < 1:
                 response2 = self.client.chat.completions.create(
                     model=self.modelo,
@@ -1226,7 +1215,6 @@ class Blab:
         return variaveis
 
     def secao300(self, variaveis: Variaveis):
-
         response1 = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -1247,7 +1235,6 @@ class Blab:
         return variaveis
 
     def secao305(self, variaveis: Variaveis):
-
         response1 = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -1325,7 +1312,6 @@ class Blab:
         return None
 
     def geraTopicos(self, results: list) -> list:
-
         topicos = ["Meio Ambiente", "Governança", "Riquezas"]
 
         lista = []
@@ -1364,7 +1350,6 @@ class Blab:
         return contagem
 
     def secao310(self, variaveis: Variaveis):
-
         dialogs: list[Dialog] = self.get_part2_dialogs()
 
         topicos = self.geraTopicos(dialogs)

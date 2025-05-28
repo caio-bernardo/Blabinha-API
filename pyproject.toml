@@ -22,8 +22,8 @@ dev = [
 ]
 
 [tool.taskipy.tasks]
-dev = "fastapi dev"
-run = "fastapi run"
+dev = "fastapi dev src/main.py"
+run = "fastapi run src/main.py"
 test = "pytest"
 lint = "ruff check"
 format = "ruff format"

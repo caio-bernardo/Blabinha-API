@@ -1,8 +1,8 @@
-
 from typing import TypeVar
 
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 def assert_ret(expr: T | None) -> T:
     """

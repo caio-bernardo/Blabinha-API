@@ -8,9 +8,11 @@ from sqlmodel.main import SQLModel
 if TYPE_CHECKING:
     from src.dialogs.schemas import DialogPublic
 
+
 class ChatState(enum.Enum):
     OPEN = True
     CLOSE = False
+
 
 class ChatBase(SQLModel):
     model: str = Field(default="gpt-4o")
@@ -23,18 +25,22 @@ class ChatBase(SQLModel):
     heroFeatures: str = Field(default="")
     totalTokens: int = Field(default="0")
 
+
 class ChatCreate(SQLModel):
     model: str
     strategy: str | None = None
     init_section: int | None = None
+
 
 class ChatPublic(ChatBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
 
+
 class ChatPublicWithDialogs(ChatPublic):
     dialogs: list["DialogPublic"] = []
+
 
 class ChatUpdate(SQLModel):
     model: str | None = None

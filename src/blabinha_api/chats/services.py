@@ -4,17 +4,22 @@ from .models import Chat
 from .schemas import ChatCreate, ChatUpdate
 from uuid import UUID
 
+
 async def get_one(session: Session, id: UUID) -> Chat:
-    return session.get_one(Chat, id) # TODO: await with Async Session
+    return session.get_one(Chat, id)  # TODO: await with Async Session
+
 
 async def get_all(session: Session) -> list[Chat]:
-   return list(session.exec(select(Chat)).all())
+    return list(session.exec(select(Chat)).all())
+
 
 async def get_history(session: Session, id: uuid.UUID) -> list[str]:
     raise NotImplementedError("needs dialog relationship")
 
+
 async def get_heroFeatures(session: Session, id: uuid.UUID) -> list[str]:
     raise NotImplementedError("needs dialog relationship")
+
 
 async def create(session: Session, props: ChatCreate) -> Chat:
     dbchat = Chat.model_validate(props)
@@ -22,6 +27,7 @@ async def create(session: Session, props: ChatCreate) -> Chat:
     session.commit()
     session.refresh(dbchat)
     return dbchat
+
 
 async def update(session: Session, id: uuid.UUID, props: ChatUpdate) -> Chat:
     dbchat = session.get_one(Chat, id)
@@ -31,6 +37,7 @@ async def update(session: Session, id: uuid.UUID, props: ChatUpdate) -> Chat:
     session.commit()
     session.refresh(dbchat)
     return dbchat
+
 
 async def delete(session: Session, id: uuid.UUID) -> None:
     chat = session.get_one(Chat, id)

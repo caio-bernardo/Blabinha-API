@@ -1,6 +1,7 @@
 from sqlmodel import SQLModel, create_engine
 import blabinha_api.config as config
 
+
 class DatabaseConfig:
     def __init__(self):
         self._engine = create_engine(config.DATABASE_URL)

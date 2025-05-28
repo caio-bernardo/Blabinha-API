@@ -3,6 +3,7 @@ Configuration and Settings of the application.
 
 Including env variables.
 """
+
 import os
 from dotenv import load_dotenv
 from .utils import assert_ret

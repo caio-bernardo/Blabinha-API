@@ -7,28 +7,16 @@ from .fixtures import *  # noqa: F403
 
 
 def test_get_all_chat(client: TestClient):
-
-    res = client.post(
-        "/chats/",
-        json={
-            "model": "gpt-4o",
-            "strategy": "one-shot"
-        }
-    )
+    res = client.post("/chats/", json={"model": "gpt-4o", "strategy": "one-shot"})
     res = client.get("/chats/")
 
     data = res.json()
     assert res.status_code == status.HTTP_200_OK
     assert len(data) == 1
 
+
 def test_create_chat(client: TestClient):
-    res = client.post(
-        "/chats/",
-        json={
-            "model": "gpt-4o",
-            "strategy": "one-shot"
-        }
-    )
+    res = client.post("/chats/", json={"model": "gpt-4o", "strategy": "one-shot"})
     data = ChatPublicWithDialogs.model_validate(res.json())
     assert res.status_code == status.HTTP_201_CREATED
     assert data.model == "gpt-4o"
@@ -49,11 +37,7 @@ def test_create_chat(client: TestClient):
 def test_get_chat(client: TestClient):
     # First create a chat
     res_create = client.post(
-        "/chats/",
-        json={
-            "model": "gpt-4o",
-            "strategy": "one-shot"
-        }
+        "/chats/", json={"model": "gpt-4o", "strategy": "one-shot"}
     )
     created_data = res_create.json()
     chat_id = created_data["id"]
@@ -70,11 +54,7 @@ def test_get_chat(client: TestClient):
 def test_update_chat(client: TestClient):
     # First create a chat
     res_create = client.post(
-        "/chats/",
-        json={
-            "model": "gpt-4o",
-            "strategy": "one-shot"
-        }
+        "/chats/", json={"model": "gpt-4o", "strategy": "one-shot"}
     )
     created_data = res_create.json()
     chat_id = created_data["id"]
@@ -85,7 +65,7 @@ def test_update_chat(client: TestClient):
         "current_section": 200,
         "bonusQnt": 2,
         "stars": 5,
-        "heroFeatures": "brave,smart"
+        "heroFeatures": "brave,smart",
     }
     res_update = client.patch(f"/chats/{chat_id}", json=update_data)
     print(res_update.json())
@@ -104,11 +84,7 @@ def test_update_chat(client: TestClient):
 def test_delete_chat(client: TestClient):
     # First create a chat
     res_create = client.post(
-        "/chats/",
-        json={
-            "model": "gpt-4o",
-            "strategy": "one-shot"
-        }
+        "/chats/", json={"model": "gpt-4o", "strategy": "one-shot"}
     )
     created_data = res_create.json()
     chat_id = created_data["id"]

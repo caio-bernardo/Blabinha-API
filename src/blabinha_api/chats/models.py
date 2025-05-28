@@ -15,8 +15,10 @@ class Chat(ChatBase, table=True):
 
     dialogs: list["Dialog"] = Relationship(back_populates="chat", cascade_delete=True)
 
-    created_at: dt = Field(default_factory=lambda: dt.now(ZoneInfo('America/Sao_Paulo')))
+    created_at: dt = Field(
+        default_factory=lambda: dt.now(ZoneInfo("America/Sao_Paulo"))
+    )
     updated_at: dt = Field(
-        default_factory=lambda: dt.now(ZoneInfo('America/Sao_Paulo')),
-        sa_column_kwargs={"onupdate": lambda: dt.now(ZoneInfo('America/Sao_Paulo'))},
+        default_factory=lambda: dt.now(ZoneInfo("America/Sao_Paulo")),
+        sa_column_kwargs={"onupdate": lambda: dt.now(ZoneInfo("America/Sao_Paulo"))},
     )
