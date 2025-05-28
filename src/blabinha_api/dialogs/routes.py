@@ -1,5 +1,8 @@
+from typing import Annotated
 from fastapi import APIRouter, status
 from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials
+from fastapi.security.http import HTTPBearer
 from sqlmodel import Session
 from starlette.exceptions import HTTPException
 
@@ -12,13 +15,14 @@ DialogPublicWithChat.model_rebuild()
 
 router = APIRouter(prefix="/dialogs", tags=["dialogs"])
 
+api_key_header = HTTPBearer()
 
 @router.post(
     "/", response_model=DialogPublicWithChat, status_code=status.HTTP_201_CREATED
 )
-async def create_dialog(props: DialogCreate, session: Session = Depends(db_session)):
+async def create_dialog(props: DialogCreate, api_key: Annotated[HTTPAuthorizationCredentials, Depends(api_key_header)], session: Session = Depends(db_session)):
     try:
-        return await services.create(session, props)
+        return await services.interact(session, props, api_key.credentials)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
