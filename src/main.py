@@ -1,21 +1,15 @@
-from fastapi import FastAPI, status
-from src.app.routes import chats, dialogs
-from src.app.database import DatabaseConfig
-from src.app.dependencies import dbconfig
-from src.app.models import *
+from fastapi.applications import FastAPI
+import uvicorn
+import blabinha_api.chats.routes as chats_routes
+from blabinha_api.database import DatabaseConfig
+import blabinha_api.dialogs.routes as dialogs_routes
 
-app_runner = FastAPI()
+app_runner = FastAPI(title="Blabinha API")
 
+app_runner.include_router(chats_routes.router)
+app_runner.include_router(dialogs_routes.router)
 
-@app_runner.on_event("startup")
-def startup():
-    dbconfig.create_tables()
-
-
-app_runner.include_router(chats.router)
-app_runner.include_router(dialogs.router)
-
-
-@app_runner.get("/health", summary="Check API health", description="Check if API is on-line")
-async def health():
-    return {"message": "Blabinha api is online"}
+if __name__ == '__main__':
+    db = DatabaseConfig()
+    db.create_tables()
+    uvicorn.run(app_runner)
