@@ -24,6 +24,7 @@ dev = [
 [tool.taskipy.tasks]
 dev = "fastapi dev src/main.py"
 run = "fastapi run src/main.py"
+migrate = "alembic upgrade head"
 test = "pytest"
 lint = "ruff check"
 format = "ruff format"
