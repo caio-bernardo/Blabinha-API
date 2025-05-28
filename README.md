@@ -45,14 +45,17 @@ curl --version
 ```
 Se sim, tudo está certo :smile, você pode seguir os exemplos anteriores. Caso contrário, siga este [link](https://curl.se/windows/), e instale o `curl` na sua máquina.
 
-Ou...Utilize aplicação de software que testem requisições HTTP, como [Postman](https://www.postman.com/downloads/) ou [Insomnia](https://insomnia.rest/download).
+Ou utilize uma aplicação de software que testem requisições HTTP, como [Postman](https://www.postman.com/downloads/) ou [Insomnia](https://insomnia.rest/download).
 
 ## Como rodar a API
 
 1. Clone este repositório: `git clone git@github.com:caio-bernardo/Blabinha2-API.git`;
 1.2. **Recomenda-se fortemenete** o uso do package manager `uv`, a instalação é simples: `pip install uv`, se deseja mais informações [clique aqui](https://docs.astral.sh/uv/);
 2. Crie um arquivo chamado `.env` seguindo o exemplo em `.env.example`. Preencha as variaveis de ambiente.
-3. Com o comando `uv` instaldo (verifique com `uv --version`), rode o projeto com `uv run task run`. Isso deve criar um ambiente virtual, instalar as dependências e rodar o projeto em **modo de produção**.
+3. Crie a base de dados com o comando `uv run task migrate`. Verifique se um arquivo `db.sqlite3` foi criado na raíz do projeto.
+3. Rode a API com o seguinte comando `uv run task run`
+
+> Na primeira vez que você executar o _uv_ ele irá instalar todos os pacotes necessários e criar uma pasta _.venv_ na raíz do seu projeto. Essa pasta pode ser usada como ambiente virtual, e ativada com `source ./.venv/bin/activate` (e sua versão do Windows). Se decidir iniciar o ambiente virtual, pode executar todos os comandos demonstrados sem a necessidade do `uv run`.
 
 ## Desenvolvendo a API
 
@@ -79,68 +82,67 @@ alembic downgrade -1
 ### Estrutura do projeto
 ```
 .
-├── db
-├── migrations
 ├── src/
-│   ├── app/
+│   ├── migrations/
+│   ├── blabinha_api/
 │   │   ├── blabinha/
 │   │   │   └── Blab.py
-│   │   ├── controllers/
-│   │   │   ├── blabinha_controller.py
-│   │   │   ├── chat_controller.py
-│   │   │   └── dialog_controller.py
-│   │   ├── models/
-│   │   │   ├── chat.py
-│   │   │   ├── dialog.py
-│   │   │   └── user.py
-│   │   ├── repositories/
-│   │   │   ├── chat_repo.py
-│   │   │   └── dialog_repo.py
-│   │   ├── routes/
-│   │   │   ├── chats.py
-│   │   │   └── dialogs.py
+│   │   ├── chats/
+│   │   │   ├── models.py
+│   │   │   ├── routes.py
+│   │   │   ├── schemas.py
+│   │   │   └── services.py
+│   │   ├── dialogs/
+│   │   │   ├── models.py
+│   │   │   ├── routes.py
+│   │   │   ├── schemas.py
+│   │   │   └── services.py
+│   │   ├── config.py
+│   │   ├── models.py
+│   │   ├── routes.py
+│   │   ├── utils.py
 │   │   ├── database.py
 │   │   └── dependencies.py
 │   └── main.py
+├── test/
 ├── alembic.ini
 ├── pyproject.toml
 └── README.md
 ```
 
 #### Diretórios principais
-- `db/`: Armazena o banco de dados SQLite
-- `migrations/`: Contém os scripts de migração do Alembic
 - `src/`: Código-fonte principal da aplicação
-
-#### Estrutura do código-fonte
-- `src/main.py`: Ponto de entrada da aplicação, configura e inicializa o servidor FastAPI
-- `src/app/database.py`: Configuração da conexão com o banco de dados
-- `src/app/dependencies.py`: Define dependências injetáveis para os endpoints (lógica)
-
-#### Blabinha (núcleo)
-- `src/app/blabinha/Blab.py`: Implementação principal do chatbot Blabinha
-
-#### Controllers
-- `src/app/controllers/blabinha_controller.py`: Gerencia a lógica de negócio do chatbot
-- `src/app/controllers/chat_controller.py`: Gerencia as interações entre requisições e a base de dados do chat
-- `src/app/controllers/dialog_controller.py`: Gerencia as interações entre requisições e a base de dados do diálogos
-
-#### Models
-- `src/app/models/chat.py`: Define o modelo de dados para chats
-- `src/app/models/dialog.py`: Define o modelo de dados para diálogos
-- `src/app/models/user.py`: Define o modelo de usuário do sistema
-
-#### Repositories
-- `src/app/repositories/chat_repo.py`: Implementa operações de CRUD para chats
-- `src/app/repositories/dialog_repo.py`: Implementa operações de CRUD para diálogos
-
-#### Routes
-- `src/app/routes/chats.py`: Define os endpoints relacionados aos chats
-- `src/app/routes/dialogs.py`: Define os endpoints relacionados aos diálogos
-
-#### Arquivos de configuração
+- `test/`: Testes da aplicação
 - `alembic.ini`: Configuração do Alembic para migrações de banco de dados
 - `pyproject.toml`: Configuração do projeto, dependências e metadados
+
+#### Estrutura do código-fonte
+- `blabinha_api`: Pacote do projeto, lógica, modelos e views
+- `migrations`: Migrações da base de dados
+- `main.py`: Arquivo de execução da aplicação
+
+#### Blabinha_API
+- `blabinha_api/database.py`: Configuração da conexão com o banco de dados
+- `blabinha_api/dependencies.py`: Define dependências injetáveis para os endpoints (lógica)
+- `blabinha_api/utils.py`: Funções utilitárias
+- `blabinha_api/config.py`: Configuração da conexão com o banco de dados
+- `blabinha_api/models.py`: Expõe todos os modelos da aplicação
+- `blabinha_api/routes.py`: Expõe todas as rotas da aplicação
+
+#### Chats
+- `blabinha_api/chats/models.py`: Modelo da base de dados
+- `blabinha_api/chats/routes.py`: Endpoints
+- `blabinha_api/chats/schemas.py`: Schemas de requisições e repostas
+- `blabinha_api/chats/services.py`: Gerencia a lógica de negócio do chatbot
+
+#### Dialogs
+- `blabinha_api/dialogs/models.py`: Modelo da base de dados
+- `blabinha_api/dialogs/routes.py`: Endpoints
+- `blabinha_api/dialogs/schemas.py`: Schemas de requisições e repostas
+- `blabinha_api/dialogs/services.py`: Gerencia a lógica de negócio do chatbot
+
+#### Blabinha
+- `blabinha_api/blabinha/Blab.py`: Lógica do agente conversacional Blabinha
 
 ## Diagrama da base de dados
 

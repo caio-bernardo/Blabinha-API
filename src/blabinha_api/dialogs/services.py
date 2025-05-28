@@ -1,0 +1,60 @@
+import uuid
+from sqlmodel import Session, select
+
+from ..blabinha.Blab import Blab, Variaveis
+from ..chats.schemas import ChatState
+
+from .models import Dialog
+from .schemas import DialogCreate
+
+
+async def interact(session: Session, props: DialogCreate, api_key: str) -> Dialog:
+    dialog = await create(session, props)
+    assert dialog.chat is not None, "Assertion Failed: dialog without chat parent"
+    chat = dialog.chat
+    blab = Blab(api_key, chat, session)
+    herofeatures = chat.heroFeatures.split("||")
+    variaveis = Variaveis(
+        section=chat.current_section,
+        input=dialog.input,
+        bonus=chat.bonusQnt,
+        stars=chat.stars,
+        repetition=chat.repetition,
+        heroFeatures=herofeatures,
+    )
+    resposta = blab.escolheParte(variaveis)
+
+    chat.current_section = resposta.section
+    chat.totalTokens += resposta.tokens
+    chat.bonusQnt = resposta.bonus
+    chat.heroFeature = "||".join(resposta.heroFeatures)
+    chat.stars = resposta.stars
+    chat.repetition = resposta.repetition
+    if resposta.section >= 371:
+        chat.state = ChatState.CLOSE
+
+    dialog.answer = resposta.answer
+    dialog.section = resposta.section
+    dialog.tokens = resposta.tokens
+
+    session.add(dialog)
+    session.add(chat)
+    session.commit()
+    session.refresh(dialog)
+    session.refresh(chat)
+    return dialog
+
+
+async def create(session: Session, props: DialogCreate) -> Dialog:
+    dbdialog = Dialog.model_validate(props)
+    session.add(dbdialog)
+    session.commit()
+    session.refresh(dbdialog)
+    return dbdialog
+
+
+def get_all_part_two(session: Session, chat_id: uuid.UUID) -> list[Dialog]:
+    statement = select(Dialog).where(
+        Dialog.chat_id == chat_id, Dialog.section >= 200, Dialog.section < 300
+    )
+    return list(session.exec(statement))

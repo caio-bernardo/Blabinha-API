@@ -1,15 +1,10 @@
-import os
 from sqlmodel import SQLModel, create_engine
-from dotenv import load_dotenv
-
-
-load_dotenv()
+import blabinha_api.config as config
 
 
 class DatabaseConfig:
     def __init__(self):
-        self.database_url = os.getenv("DATABASE_URL", "env var not found")
-        self._engine = create_engine(self.database_url)
+        self._engine = create_engine(config.DATABASE_URL)
 
     @property
     def engine(self):
@@ -20,10 +15,3 @@ class DatabaseConfig:
 
     def drop_tables(self):
         SQLModel.metadata.drop_all(self.engine)
-
-
-if __name__ == "__main__":
-    from models import *
-
-    dbconfig = DatabaseConfig()
-    dbconfig.create_tables()

@@ -1,5 +1,5 @@
 [project]
-name = "blabinha2-api"
+name = "blabinha_api"
 version = "1.0.0"
 description = "Serviço de API do chat-bot Blabinha"
 readme = "README.md"
@@ -10,10 +10,13 @@ dependencies = [
     "fastapi[standard]>=0.115.12",
     "openai>=1.72.0",
     "sqlmodel>=0.0.24",
+    "uvicorn>=0.34.0",
 ]
 
 [dependency-groups]
 dev = [
+    "pytest>=8.3.5",
+    "requests>=2.32.3",
     "ruff>=0.11.8",
     "taskipy>=1.14.1",
 ]
@@ -21,6 +24,7 @@ dev = [
 [tool.taskipy.tasks]
 dev = "fastapi dev src/main.py"
 run = "fastapi run src/main.py"
+migrate = "alembic upgrade head"
 test = "pytest"
 lint = "ruff check"
 format = "ruff format"
