@@ -6,7 +6,7 @@ from sqlmodel import Field
 from sqlmodel.main import SQLModel
 
 if TYPE_CHECKING:
-    from src.dialogs.schemas import DialogPublic
+    from blabinha_api.dialogs.schemas import DialogPublic
 
 
 class ChatState(enum.Enum):
