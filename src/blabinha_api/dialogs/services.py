@@ -3,15 +3,16 @@ from sqlmodel import Session, select
 
 from ..blabinha.Blab import Blab, Variaveis
 from ..chats.schemas import ChatState
+from ..chats.services import get_one
 
 from .models import Dialog
 from .schemas import DialogCreate
 
 
 async def interact(session: Session, props: DialogCreate, api_key: str) -> Dialog:
-    dialog = await create(session, props)
-    assert dialog.chat is not None, "Assertion Failed: dialog without chat parent"
-    chat = dialog.chat
+    dialog = Dialog.model_validate(props)
+    chat = await get_one(session, props.chat_id)
+
     blab = Blab(api_key, chat, session)
     herofeatures = chat.heroFeatures.split("||")
     variaveis = Variaveis(
@@ -27,7 +28,7 @@ async def interact(session: Session, props: DialogCreate, api_key: str) -> Dialo
     chat.current_section = resposta.section
     chat.totalTokens += resposta.tokens
     chat.bonusQnt = resposta.bonus
-    chat.heroFeature = "||".join(resposta.heroFeatures)
+    chat.heroFeatures = "||".join(resposta.heroFeatures)
     chat.stars = resposta.stars
     chat.repetition = resposta.repetition
     if resposta.section >= 371:
