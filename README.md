@@ -156,7 +156,7 @@ erDiagram
       State state
       string bonusQnt
       string stars
-      string heroFeature
+      string heroFeatures
       int totalTokens
       string history
       Dialog[] dialogs
