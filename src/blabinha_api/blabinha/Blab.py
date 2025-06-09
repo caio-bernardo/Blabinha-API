@@ -209,7 +209,7 @@ class Blab:
 
 
     # Verifica se a pessoa pediu para repetir
-    def verificaRepete(self, variaveis):
+    def verificaRepete(self, variaveis: Variaveis):
         response = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -251,7 +251,7 @@ class Blab:
             return False
 
     # Verifica se a pessoa terminou o desafio
-    def verificaDesafio(self, variaveis):
+    def verificaDesafio(self, variaveis: Variaveis):
         response = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -278,7 +278,7 @@ class Blab:
         return False
 
     # Verifica se a pessoa entendeu as regras
-    def verificaRegras(self, variaveis):
+    def verificaRegras(self, variaveis: Variaveis):
         response = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -371,7 +371,7 @@ class Blab:
             return False
 
     # Verifica se a pessoa pediu para terminar
-    def verificaTerminar(self, variaveis):
+    def verificaTerminar(self, variaveis: Variaveis):
         response = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -404,7 +404,7 @@ class Blab:
             )
             falaGPT = self.enviaResultados([response], variaveis)
             variaveis.answer = falaGPT
-            variaveis.turn += 50
+            variaveis.section += 50
             return True
 
         else:
@@ -456,7 +456,7 @@ class Blab:
             )
             return False
 
-    def verificaParte03(self, variaveis):
+    def verificaParte03(self, variaveis: Variaveis):
         frase = str.lower(variaveis.input)
         possibilidades = ["criar heroi", "criar héroi", "parte 3", "parte 03"]
 
@@ -476,7 +476,7 @@ class Blab:
             )
             falaGPT = self.enviaResultados([response1], variaveis)
             variaveis.answer = falaGPT
-            variaveis.turn += 70
+            variaveis.section += 70
             return True
 
         else:
@@ -541,7 +541,7 @@ class Blab:
             return True
 
     # Verifica se a pessoa falou alguma das palavras chaves
-    def verificaBonus(self, variaveis):
+    def verificaBonus(self, variaveis: Variaveis):
         response = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -565,7 +565,7 @@ class Blab:
             self.printVerificador("Verifica Bonus", "Não caiu no caso Bonus")
             return True
 
-    def repetiraCriação(self, variaveis):
+    def repetiraCriação(self, variaveis: Variaveis):
         response = self.client.chat.completions.create(
             model=self.modelo,
             messages=[
@@ -726,7 +726,7 @@ class Blab:
         variaveis.repetition = 0
         return variaveis
 
-    def secao130(self, variaveis):
+    def secao130(self, variaveis: Variaveis):
         if self.verificaRepete(variaveis) is True:
             return variaveis
 
@@ -749,8 +749,8 @@ class Blab:
 
             respostas = [response]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
-            variaveis.turn = 140
-            variaveis[5] = 0
+            variaveis.section = 140
+            variaveis.repetition = 0
             return variaveis
 
         else:
@@ -801,8 +801,8 @@ class Blab:
 
             respostas = [response1, response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
-            variaveis.turn = 205
-            variaveis[5] = 0
+            variaveis.section = 205
+            variaveis.repetition = 0
             return variaveis
 
     def secao140(self, variaveis: Variaveis):
@@ -1277,7 +1277,7 @@ class Blab:
         variaveis.section = 310
         return variaveis
 
-    def escolheQuestões(self, tamanho):
+    def escolheQuestões(self, tamanho: int):
         """
         Retorna onde ir conforme a quantidade de questões respondidass
         :param int tamanho: tamanho das questões
