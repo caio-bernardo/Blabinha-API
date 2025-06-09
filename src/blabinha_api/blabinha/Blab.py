@@ -16,6 +16,7 @@ class Variaveis:
         stars: int,
         heroFeatures: list[str],
         repetition: int,
+        username: str,
     ):
         self.section = section
         self.input = input
@@ -25,6 +26,7 @@ class Variaveis:
         self.heroFeatures: list[str] = heroFeatures
         self.tokens = 0
         self.repetition = repetition
+        self.username = username
 
     def add_hero_feature(self, feature: str):
         self.heroFeatures.append(feature)
@@ -187,6 +189,24 @@ class Blab:
         else:
             self.printVerificador("Falou nome", "A pessoa falou o nome!")
             return True
+
+    # Após detectar que ele falou o nome:
+    def extraiNome(self, variaveis: Variaveis)-> str:
+        response = self.client.chat.completions.create(
+            model=self.modelo,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Extraia apenas o nome ou apelido que o usuário quer usar. Seja sucinto, responda apenas o nome, sem frases adicionais.",
+                },
+                {"role": "user", "content": variaveis.input},
+            ],
+        )
+        content = response.choices[0].message.content
+        if content is None:
+            return ""
+        return content.strip()
+
 
     # Verifica se a pessoa pediu para repetir
     def verificaRepete(self, variaveis):
@@ -594,6 +614,7 @@ class Blab:
             respostas = [response]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
             variaveis.section = 120
+            variaveis.username = self.extraiNome(variaveis)
             return variaveis
 
         response = self.client.chat.completions.create(
@@ -625,6 +646,8 @@ class Blab:
             if self.verificaNome(variaveis) is False:
                 variaveis.repetition += 1
                 return variaveis
+            else:
+                variaveis.username = self.extraiNome(variaveis)
         else:
             response = self.client.chat.completions.create(
                 model=self.modelo,
