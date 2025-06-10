@@ -13,6 +13,7 @@ class DialogBase(SQLModel):
     answer: str = Field(default="")
     section: int = Field(default=100)
     tokens: int = Field(default=0)
+    emotion: int = Field(default=0)
 
 
 class DialogPublic(DialogBase):

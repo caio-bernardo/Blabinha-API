@@ -17,6 +17,7 @@ class Variaveis:
         heroFeatures: list[str],
         repetition: int,
         username: str,
+        emotion: int,
     ):
         self.section = section
         self.input = input
@@ -27,6 +28,7 @@ class Variaveis:
         self.tokens = 0
         self.repetition = repetition
         self.username = username
+        self.emotion = emotion
 
     def add_hero_feature(self, feature: str):
         self.heroFeatures.append(feature)
@@ -1641,3 +1643,35 @@ class Blab:
         # TODO: Need to find a way to save the image
         # manip.saveImages(variaveis[4],variaveis[5],imagem.data[0].url)
         return variaveis
+
+    def detecta_emocao(self, variaveis: Variaveis) -> int:
+        prompt = (
+            "Classifique a emoção predominante na mensagem passada com uma única palavra entre: "
+            "normal, feliz, triste, susto, medo, raiva ou fofo. "
+            "Responda SOMENTE com o número correspondente à emoção:\n\n"
+            "0: normal\n"
+            "1: feliz\n"
+            "2: triste\n"
+            "3: susto\n"
+            "4: medo\n"
+            "5: raiva\n"
+            "6: fofo\n"
+        )
+
+        response = self.client.chat.completions.create(
+            model=self.modelo,
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": variaveis.input},
+            ],
+        )
+
+        content = response.choices[0].message.content
+
+        if(content is not None):
+            numero_emocao = int(content.strip())
+            if 0 <= numero_emocao <= 6:
+                return numero_emocao
+
+        return 0
+

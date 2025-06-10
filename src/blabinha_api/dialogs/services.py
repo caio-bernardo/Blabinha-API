@@ -23,9 +23,11 @@ async def interact(session: Session, props: DialogCreate, api_key: str) -> Dialo
         repetition=chat.repetition,
         heroFeatures=herofeatures,
         username=chat.username,
+        emotion=dialog.emotion,
     )
     resposta = blab.escolheParte(variaveis)
-
+    emocao = blab.detecta_emocao(resposta)
+    dialog.emotion = emocao
     chat.current_section = resposta.section
     chat.totalTokens += resposta.tokens
     chat.bonusQnt = resposta.bonus
