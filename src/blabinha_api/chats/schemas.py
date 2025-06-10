@@ -24,6 +24,7 @@ class ChatBase(SQLModel):
     repetition: int = Field(default=0)
     heroFeatures: str = Field(default="")
     totalTokens: int = Field(default="0")
+    username: str = Field(default="")
 
 
 class ChatCreate(SQLModel):
@@ -49,3 +50,4 @@ class ChatUpdate(SQLModel):
     bonusQnt: int | None = None
     stars: int | None = None
     heroFeatures: str | None = None
+    username: str | None = None

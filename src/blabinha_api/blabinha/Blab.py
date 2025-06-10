@@ -16,6 +16,8 @@ class Variaveis:
         stars: int,
         heroFeatures: list[str],
         repetition: int,
+        username: str,
+        emotion: int,
     ):
         self.section = section
         self.input = input
@@ -25,6 +27,8 @@ class Variaveis:
         self.heroFeatures: list[str] = heroFeatures
         self.tokens = 0
         self.repetition = repetition
+        self.username = username
+        self.emotion = emotion
 
     def add_hero_feature(self, feature: str):
         self.heroFeatures.append(feature)
@@ -187,6 +191,24 @@ class Blab:
         else:
             self.printVerificador("Falou nome", "A pessoa falou o nome!")
             return True
+
+    # Após detectar que ele falou o nome:
+    def extraiNome(self, variaveis: Variaveis)-> str:
+        response = self.client.chat.completions.create(
+            model=self.modelo,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Extraia apenas o nome ou apelido que o usuário quer usar. Seja sucinto, responda apenas o nome, sem frases adicionais.",
+                },
+                {"role": "user", "content": variaveis.input},
+            ],
+        )
+        content = response.choices[0].message.content
+        if content is None:
+            return ""
+        return content.strip()
+
 
     # Verifica se a pessoa pediu para repetir
     def verificaRepete(self, variaveis: Variaveis):
@@ -594,6 +616,7 @@ class Blab:
             respostas = [response]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
             variaveis.section = 120
+            variaveis.username = self.extraiNome(variaveis)
             return variaveis
 
         response = self.client.chat.completions.create(
@@ -625,6 +648,8 @@ class Blab:
             if self.verificaNome(variaveis) is False:
                 variaveis.repetition += 1
                 return variaveis
+            else:
+                variaveis.username = self.extraiNome(variaveis)
         else:
             response = self.client.chat.completions.create(
                 model=self.modelo,
@@ -1618,3 +1643,35 @@ class Blab:
         # TODO: Need to find a way to save the image
         # manip.saveImages(variaveis[4],variaveis[5],imagem.data[0].url)
         return variaveis
+
+    def detecta_emocao(self, variaveis: Variaveis) -> int:
+        prompt = (
+            "Classifique a emoção predominante na mensagem passada com uma única palavra entre: "
+            "normal, feliz, triste, susto, medo, raiva ou fofo. "
+            "Responda SOMENTE com o número correspondente à emoção:\n\n"
+            "0: normal\n"
+            "1: feliz\n"
+            "2: triste\n"
+            "3: susto\n"
+            "4: medo\n"
+            "5: raiva\n"
+            "6: fofo\n"
+        )
+
+        response = self.client.chat.completions.create(
+            model=self.modelo,
+            messages=[
+                {"role": "system", "content": prompt},
+                {"role": "user", "content": variaveis.input},
+            ],
+        )
+
+        content = response.choices[0].message.content
+
+        if(content is not None):
+            numero_emocao = int(content.strip())
+            if 0 <= numero_emocao <= 6:
+                return numero_emocao
+
+        return 0
+

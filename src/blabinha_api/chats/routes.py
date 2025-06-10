@@ -1,4 +1,6 @@
+from typing import Annotated, List
 from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.exc import NoResultFound
 from sqlmodel import Session
 
@@ -13,6 +15,7 @@ ChatPublicWithDialogs.model_rebuild()
 
 router = APIRouter(prefix="/chats", tags=["chats"])
 
+api_key_header = HTTPBearer()
 
 @router.get(
     "/", response_model=list[ChatPublicWithDialogs], status_code=status.HTTP_200_OK
@@ -64,6 +67,19 @@ async def update_chat(
 async def delete_chat(id: uuid.UUID, session: Session = Depends(db_session)):
     try:
         await services.delete(session, id)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
+
+@router.get(
+    "/{id}/suggestions", response_model=List[str], status_code=status.HTTP_200_OK
+)
+async def get_suggestions(id: uuid.UUID, api_key: Annotated[HTTPAuthorizationCredentials, Depends(api_key_header)], session: Session = Depends(db_session)):
+    try:
+        return await services.get_suggestions(session, id, api_key.credentials)
+    except NoResultFound as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)

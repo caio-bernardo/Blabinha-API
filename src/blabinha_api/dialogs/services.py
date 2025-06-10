@@ -22,15 +22,19 @@ async def interact(session: Session, props: DialogCreate, api_key: str) -> Dialo
         stars=chat.stars,
         repetition=chat.repetition,
         heroFeatures=herofeatures,
+        username=chat.username,
+        emotion=dialog.emotion,
     )
     resposta = blab.escolheParte(variaveis)
-
+    emocao = blab.detecta_emocao(resposta)
+    dialog.emotion = emocao
     chat.current_section = resposta.section
     chat.totalTokens += resposta.tokens
     chat.bonusQnt = resposta.bonus
     chat.heroFeatures = "||".join(resposta.heroFeatures)
     chat.stars = resposta.stars
     chat.repetition = resposta.repetition
+    chat.username = resposta.username
     if resposta.section >= 371:
         chat.state = ChatState.CLOSE
 
