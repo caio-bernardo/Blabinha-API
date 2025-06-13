@@ -55,7 +55,7 @@ async def get_suggestions(session: Session, id: uuid.UUID, api_key: str) -> List
 
     prompt = (
         "Você é um assistente inteligente especializado na Amazônia Azul. "
-        "Com base na conversa abaixo, gere uma lista com 4 perguntas curtas, "
+        "Com base na conversa abaixo, gere uma lista com 4 perguntas (nem mais, nem menos) curtas, "
         "com no máximo 45 caracteres, que ainda não foram feitas. "
         "As perguntas devem ser direcionadas ao assistente da conversa passada, "
         "estar dentro do tema da Amazônia Azul, e ser relevantes ao contexto da conversa. "

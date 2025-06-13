@@ -1646,16 +1646,18 @@ class Blab:
 
     def detecta_emocao(self, variaveis: Variaveis) -> int:
         prompt = (
-            "Classifique a emoção predominante na mensagem passada com uma única palavra entre: "
-            "normal, feliz, triste, susto, medo, raiva ou fofo. "
-            "Responda SOMENTE com o número correspondente à emoção:\n\n"
-            "0: normal\n"
-            "1: feliz\n"
-            "2: triste\n"
-            "3: susto\n"
-            "4: medo\n"
-            "5: raiva\n"
-            "6: fofo\n"
+            "Sua tarefa é identificar a emoção predominante em uma mensagem de um usuário humano. "
+            "Considere o tom geral da mensagem, a escolha das palavras e o sentimento que ela transmite.\n\n"
+            "Classifique a emoção em apenas **uma única opção** entre as seguintes:\n"
+            "0: normal — neutra, sem emoção destacada\n"
+            "1: feliz — alegria, empolgação, satisfação\n"
+            "2: triste — tristeza, desânimo, melancolia\n"
+            "3: susto — surpresa inesperada, choque\n"
+            "4: medo — preocupação, insegurança, tensão\n"
+            "5: raiva — irritação, frustração, agressividade\n"
+            "6: fofo — ternura, carinho, delicadeza\n\n"
+            "**IMPORTANTE**: Responda SOMENTE com o número da emoção, sem texto adicional.\n"
+            "Exemplos de resposta: `1` ou `4`\n"
         )
 
         response = self.client.chat.completions.create(
@@ -1669,9 +1671,13 @@ class Blab:
         content = response.choices[0].message.content
 
         if(content is not None):
-            numero_emocao = int(content.strip())
-            if 0 <= numero_emocao <= 6:
-                return numero_emocao
+            try:
+                numero_emocao = int(content.strip())
+                if 0 <= numero_emocao <= 6:
+                    return numero_emocao
+            except (ValueError, TypeError):
+                pass
 
         return 0
+
 
