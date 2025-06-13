@@ -29,6 +29,7 @@ class Variaveis:
         self.repetition = repetition
         self.username = username
         self.emotion = emotion
+        self.image = ""
 
     def add_hero_feature(self, feature: str):
         self.heroFeatures.append(feature)
@@ -1642,6 +1643,7 @@ class Blab:
         variaveis.section = 371
         # TODO: Need to find a way to save the image
         # manip.saveImages(variaveis[4],variaveis[5],imagem.data[0].url)
+        variaveis.image = imagem.data[0].url
         return variaveis
 
     def detecta_emocao(self, variaveis: Variaveis) -> int:

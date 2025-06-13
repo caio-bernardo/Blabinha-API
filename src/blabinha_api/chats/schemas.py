@@ -25,6 +25,7 @@ class ChatBase(SQLModel):
     heroFeatures: str = Field(default="")
     totalTokens: int = Field(default="0")
     username: str = Field(default="")
+    image: str = Field(default="")
 
 
 class ChatCreate(SQLModel):
@@ -51,3 +52,4 @@ class ChatUpdate(SQLModel):
     stars: int | None = None
     heroFeatures: str | None = None
     username: str | None = None
+    image: str |  None = None

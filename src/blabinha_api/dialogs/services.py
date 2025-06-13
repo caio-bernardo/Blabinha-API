@@ -35,6 +35,7 @@ async def interact(session: Session, props: DialogCreate, api_key: str) -> Dialo
     chat.stars = resposta.stars
     chat.repetition = resposta.repetition
     chat.username = resposta.username
+    chat.image = resposta.image
     if resposta.section >= 371:
         chat.state = ChatState.CLOSE
 
