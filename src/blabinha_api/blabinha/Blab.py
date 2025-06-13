@@ -1292,11 +1292,11 @@ class Blab:
             return 323
         return 322
 
-    def get_highest_past_turn(self, result: list) -> int:
+    def get_highest_past_turn(self, result: list[Dialog]) -> int:
         highest = 0
         for i in result:
-            if i[2] > highest:
-                highest = i[2]
+            if i.section > highest:
+                highest = i.section
         if highest >= 216:
             return 4
         if highest >= 215:
@@ -1307,22 +1307,22 @@ class Blab:
             return 1
         return 0
 
-    def get_question(self, result: list) -> int:
+    def get_question(self, result: list[Dialog]) -> int:
         quests = [212, 214, 216]
         total = 0
         for r in result:
-            if r[2] in quests:
+            if r.section in quests:
                 total += 1
         return total
 
-    def get_bonus(self, result: list) -> str | None:
+    def get_bonus(self, result: list[Dialog]) -> str | None:
         for r in result:
-            if 250 > r[2] > 240:
+            if 250 > r.section > 240:
                 response = self.client.chat.completions.create(
                     model=self.modelo,
                     messages=[
-                        {"role": "user", "content": r[0]},
-                        {"role": "assistant", "content": r[1]},
+                        {"role": "user", "content": r.input},
+                        {"role": "assistant", "content": r.answer},
                         {
                             "role": "system",
                             "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
@@ -1336,19 +1336,19 @@ class Blab:
                 return response.choices[0].message.content
         return None
 
-    def geraTopicos(self, results: list) -> list:
+    def geraTopicos(self, results: list[Dialog]) -> list[str|int]:
         topicos = ["Meio Ambiente", "Governança", "Riquezas"]
 
         lista = []
-        contagem = []
+        contagem: list[str|int] = []
 
         for t in results:
             for x in topicos:
                 response = self.client.chat.completions.create(
                     model=self.modelo,
                     messages=[
-                        {"role": "user", "content": t[0]},
-                        {"role": "assistant", "content": t[1]},
+                        {"role": "user", "content": t.input},
+                        {"role": "assistant", "content": t.answer},
                         {
                             "role": "system",
                             "content": "Leia a conversa e veja se ela está relacionada ao tópico "
@@ -1379,7 +1379,7 @@ class Blab:
 
         topicos = self.geraTopicos(dialogs)
 
-        variaveis.add_star(topicos[3])
+        variaveis.add_star(int(topicos[3]))
 
         estrelas = self.get_highest_past_turn(dialogs)
 
@@ -1418,11 +1418,11 @@ class Blab:
                     "role": "system",
                     "content": "Siga os passos a seguir para gerar a saida:"
                     + "1 - Explique que agora você vai fazer uma analise de topicos sobre toda conversa. 2 - Diga que ela falou"
-                    + topicos[0]
+                    + str(topicos[0])
                     + " e "
-                    + topicos[1]
+                    + str(topicos[1])
                     + " e "
-                    + topicos[2]
+                    + str(topicos[2])
                     + "Termine falando que ela conseguiu "
                     + str(topicos[3])
                     + "estrelas por causa disso de um total de 4",
