@@ -5,9 +5,9 @@ Um servidor HTTP REST, que expõe o chat-bot Blabinha através da rede, como um 
 ## _Features_
 
 - Criar chats: sessões permanentes entre requisições;
-- Criar diálogos (_dialogs_): uma seção de intenração com um chat;
+- Criar diálogos (_dialogs_): uma seção de conversa com um chat (pergunta e resposta);
 - Recuperar dados sobre chats ou diálogos anteriores;
-- Apagar dados referentes a chats e diálogos.
+- Editar e apagar dados referentes a chats e diálogos.
 
 ## Tecnologias utilizadas
 
