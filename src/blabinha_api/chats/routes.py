@@ -8,6 +8,7 @@ from . import services
 from .schemas import ChatCreate, ChatPublic, ChatPublicWithDialogs, ChatUpdate
 from ..dependencies import db_session
 from ..dialogs.schemas import DialogPublic  # noqa: F401
+from ..accounts.schemas import UserPublic # noqa: F401
 
 import uuid
 
