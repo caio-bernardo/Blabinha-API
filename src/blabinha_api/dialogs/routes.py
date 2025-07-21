@@ -11,6 +11,7 @@ from blabinha_api.dependencies import db_session
 from . import services
 from .schemas import DialogCreate, DialogPublicWithChat
 from ..chats.schemas import ChatPublic  # noqa: F401
+from ..accounts.schemas import UserPublic #noqa: F401
 
 DialogPublicWithChat.model_rebuild()
 
