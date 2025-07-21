@@ -14,7 +14,7 @@ from .services import TokenService, UserService
 from .schemas import Token, UserPublicWithChats, UserCreatePayload, UserPublic
 from blabinha_api.chats.schemas import ChatPublic
 
-router = APIRouter()
+router = APIRouter(tags=["Users"])
 
 ChatPublic.model_rebuild()
 UserPublicWithChats.model_rebuild()
@@ -29,6 +29,9 @@ def get_token_service() -> TokenService:
 async def read_own_user(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
 
+@router.delete("/users/me", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_own_user(current_user: Annotated[User, Depends(get_current_user)], userservice: Annotated[UserService, Depends(get_user_service)]):
+    await userservice.delete_user(current_user)
 
 @router.post("/auth/register", response_model=UserPublicWithChats)
 async def create_user(payload: UserCreatePayload, userservice: Annotated[UserService, Depends(get_user_service)]):

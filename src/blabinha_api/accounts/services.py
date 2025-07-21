@@ -41,8 +41,10 @@ class UserService:
     async def update_user(self):
         pass
 
-    async def delete_user(self):
-        pass
+    async def delete_user(self, user: User):
+        self.session.delete(user)
+        self.session.commit()
+        self.session.refresh(user)
 
 class TokenService:
     def __init__(self):
