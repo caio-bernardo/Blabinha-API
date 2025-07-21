@@ -1648,7 +1648,7 @@ class Blab:
 
     def detecta_emocao(self, variaveis: Variaveis) -> int:
         prompt = (
-            "Sua tarefa é identificar a emoção predominante em uma mensagem de um usuário humano. "
+            "Sua tarefa é identificar a emoção predominante em uma mensagem de um modelo de linguagem. "
             "Considere o tom geral da mensagem, a escolha das palavras e o sentimento que ela transmite.\n\n"
             "Classifique a emoção em apenas **uma única opção** entre as seguintes:\n"
             "0: normal — neutra, sem emoção destacada\n"
@@ -1666,7 +1666,7 @@ class Blab:
             model=self.modelo,
             messages=[
                 {"role": "system", "content": prompt},
-                {"role": "user", "content": variaveis.input},
+                {"role": "user", "content": variaveis.answer},
             ],
         )
 
