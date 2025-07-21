@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import SecretStr
 from sqlmodel import Session
 
-from blabinha_api import config
+from blabinha_api.config import config
 from blabinha_api.core.dependencies import db_session
 
 from .dependencies import get_current_user
@@ -49,7 +49,7 @@ async def login(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=config.access_token_expire_minutes)
     access_token = tokenservice.create_access_token(
         data={"sub": user.email},
         expires_delta=access_token_expires

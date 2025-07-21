@@ -1,7 +1,6 @@
 import sys
 import uvicorn
 from blabinha_api import database
-import blabinha_api.config as config
 
 from blabinha_api.app import app_runner
 
@@ -12,7 +11,7 @@ if __name__ == "__main__":
     else:
         match args[1]:
             case "runserver":
-                uvicorn.run(app_runner, host=config.HOST, port=config.PORT)
+                uvicorn.run(app_runner, host="0.0.0.0", port=8000)
             case "migrate":
                 dbconfig = database.DatabaseConfig()
                 dbconfig.migrate()

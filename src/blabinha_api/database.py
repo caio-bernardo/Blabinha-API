@@ -1,12 +1,12 @@
 from alembic import command
 from alembic.config import Config
 from sqlmodel import SQLModel, create_engine
-import blabinha_api.config as config
+from blabinha_api.config import config
 
 
 class DatabaseConfig:
     def __init__(self):
-        self._engine = create_engine(config.DATABASE_URL)
+        self._engine = create_engine(config.database_url)
 
     @property
     def engine(self):

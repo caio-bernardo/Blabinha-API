@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 from passlib.context import CryptContext
 from pydantic import SecretStr
 from sqlmodel import Session, select
-from blabinha_api import config
+from blabinha_api.config import config
 import jwt
 
 from blabinha_api.accounts.models import User
@@ -56,7 +56,7 @@ class TokenService:
             expire = datetime.now(ZoneInfo("America/Sao_Paulo")) + timedelta(minutes=15)
 
         to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, config.access_token_secret_key, algorithm=config.hash_algorithm)
         return encoded_jwt
 
     def verify_password(self, plain_password: SecretStr, hashed_password: SecretStr):

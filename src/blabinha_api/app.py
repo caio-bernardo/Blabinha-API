@@ -1,8 +1,9 @@
 from fastapi.applications import FastAPI
-import core.routes as core_routes
+from blabinha_api.core import routes as core_routes
 from fastapi.middleware.cors import CORSMiddleware
+from blabinha_api.config import config
 
-app_runner = FastAPI(title="Blabinha API")
+app_runner = FastAPI(title=config.app_name)
 
 app_runner.add_middleware(
     CORSMiddleware,

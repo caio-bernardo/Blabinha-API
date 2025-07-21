@@ -3,17 +3,21 @@ Configuration and Settings of the application.
 
 Including env variables.
 """
-
-import os
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
-from .utils import assert_ret
-
 load_dotenv()
 
-SECRET_KEY = assert_ret(os.getenv("SECRET_KEY"))
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+class Settings(BaseSettings):
+    app_name: str
+    database_url: str
 
-DATABASE_URL = assert_ret(os.getenv("DATABASE_URL"))
-HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", 8000))
+    hash_algorithm: str
+    access_token_secret_key: str
+    access_token_expire_minutes: int
+    refresh_token_secret_key: str
+    refresh_token_expire_minutes: int
+
+    openai_api_key: str
+    model_config = SettingsConfigDict(env_file=".env")
+
+config = Settings()
