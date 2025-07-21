@@ -1,5 +1,9 @@
-# API Blabinha2.0 (V2)
+<img width="100%" height="150" alt="Blabinha_API_@_2 0" src="https://github.com/user-attachments/assets/bb817cc5-b0ea-4ceb-9b15-0892dc8ad597" />
 
+---
+<p align=center><strong>Web API para o chatbot Blabinha.</strong></p>
+
+## Sobre
 Um servidor HTTP REST, que expõe o chat-bot Blabinha através da rede, como um serviço de API, permitindo a criação de conversas utilizando diferentes modelos de LLMs e estratégias de prompt. Ligado ao projeto _Blabinha 2.0: um agente conversacional baseado em inteligência artificial generativa, especialista na Amazônia Azul_, do laboratório _Center for Artificial Intelligence_ (C4AI) da Universidade de São Paulo.
 
 ## _Features_
@@ -78,94 +82,4 @@ alembic upgrade head
 Para reverter alterações:
 ```bash
 alembic downgrade -1
-```
-### Estrutura do projeto
-```
-.
-├── src/
-│   ├── migrations/
-│   ├── blabinha_api/
-│   │   ├── blabinha/
-│   │   │   └── Blab.py
-│   │   ├── chats/
-│   │   │   ├── models.py
-│   │   │   ├── routes.py
-│   │   │   ├── schemas.py
-│   │   │   └── services.py
-│   │   ├── dialogs/
-│   │   │   ├── models.py
-│   │   │   ├── routes.py
-│   │   │   ├── schemas.py
-│   │   │   └── services.py
-│   │   ├── config.py
-│   │   ├── models.py
-│   │   ├── routes.py
-│   │   ├── utils.py
-│   │   ├── database.py
-│   │   └── dependencies.py
-│   └── main.py
-├── test/
-├── alembic.ini
-├── pyproject.toml
-└── README.md
-```
-
-#### Diretórios principais
-- `src/`: Código-fonte principal da aplicação
-- `test/`: Testes da aplicação
-- `alembic.ini`: Configuração do Alembic para migrações de banco de dados
-- `pyproject.toml`: Configuração do projeto, dependências e metadados
-
-#### Estrutura do código-fonte
-- `blabinha_api`: Pacote do projeto, lógica, modelos e views
-- `migrations`: Migrações da base de dados
-- `main.py`: Arquivo de execução da aplicação
-
-#### Blabinha_API
-- `blabinha_api/database.py`: Configuração da conexão com o banco de dados
-- `blabinha_api/dependencies.py`: Define dependências injetáveis para os endpoints (lógica)
-- `blabinha_api/utils.py`: Funções utilitárias
-- `blabinha_api/config.py`: Configuração da conexão com o banco de dados
-- `blabinha_api/models.py`: Expõe todos os modelos da aplicação
-- `blabinha_api/routes.py`: Expõe todas as rotas da aplicação
-
-#### Chats
-- `blabinha_api/chats/models.py`: Modelo da base de dados
-- `blabinha_api/chats/routes.py`: Endpoints
-- `blabinha_api/chats/schemas.py`: Schemas de requisições e repostas
-- `blabinha_api/chats/services.py`: Gerencia a lógica de negócio do chatbot
-
-#### Dialogs
-- `blabinha_api/dialogs/models.py`: Modelo da base de dados
-- `blabinha_api/dialogs/routes.py`: Endpoints
-- `blabinha_api/dialogs/schemas.py`: Schemas de requisições e repostas
-- `blabinha_api/dialogs/services.py`: Gerencia a lógica de negócio do chatbot
-
-#### Blabinha
-- `blabinha_api/blabinha/Blab.py`: Lógica do agente conversacional Blabinha
-
-## Diagrama da base de dados
-
-Segue um diagrama da base de dados:
-```mermaid
-erDiagram
-   Chat ||--o{ Dialog : possui
-   Chat {
-      string model
-      string strategy
-      State state
-      string bonusQnt
-      string stars
-      string heroFeatures
-      int totalTokens
-      string history
-      Dialog[] dialogs
-   }
-   Dialog {
-      string input
-      string answer
-      int section
-      int tokens
-      Chat chat
-   }
 ```
