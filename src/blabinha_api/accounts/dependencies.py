@@ -8,7 +8,7 @@ from blabinha_api.accounts.schemas import TokenData
 from blabinha_api.accounts.services import UserService
 
 from .models import User
-from blabinha_api.dependencies import db_session, oauth2_scheme
+from core.dependencies import db_session, oauth2_scheme
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], session: Annotated[Session, Depends(db_session)]) -> User:
     def credentials_exception(err):

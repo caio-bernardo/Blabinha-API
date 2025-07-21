@@ -2,7 +2,7 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from blabinha_api.models import *  # noqa: F403
+from blabinha_api.core.models import *  # noqa: F403
 import blabinha_api.config as api_config
 from sqlmodel import SQLModel
 from alembic import context

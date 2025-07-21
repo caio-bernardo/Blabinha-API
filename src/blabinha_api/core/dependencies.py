@@ -1,7 +1,7 @@
 from typing import Generator
 from sqlmodel import Session
 from fastapi.security import OAuth2PasswordBearer
-from .database import DatabaseConfig
+from blabinha_api.database import DatabaseConfig
 
 db = DatabaseConfig()
 

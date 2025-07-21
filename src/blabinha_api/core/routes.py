@@ -1,8 +1,8 @@
 from fastapi import status
 from fastapi.routing import APIRouter
-import blabinha_api.chats.routes as chats_routes
-import blabinha_api.dialogs.routes as dialogs_routes
-import blabinha_api.accounts.routes as accounts_routes
+import chats.routes as chats_routes
+import dialogs.routes as dialogs_routes
+import accounts.routes as accounts_routes
 
 router = APIRouter()
 

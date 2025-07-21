@@ -7,7 +7,7 @@ from fastapi.security.http import HTTPBearer
 from sqlmodel import Session
 from starlette.exceptions import HTTPException
 
-from blabinha_api.dependencies import db_session
+from blabinha_api.core.dependencies import db_session
 from . import services
 from .schemas import DialogCreate, DialogPublicWithChat
 from ..chats.schemas import ChatPublic  # noqa: F401

@@ -6,7 +6,7 @@ from pydantic import SecretStr
 from sqlmodel import Session
 
 from blabinha_api import config
-from blabinha_api.dependencies import db_session
+from blabinha_api.core.dependencies import db_session
 
 from .dependencies import get_current_user
 from .models import User
