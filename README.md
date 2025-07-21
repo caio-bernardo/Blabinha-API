@@ -5,9 +5,9 @@ Um servidor HTTP REST, que expõe o chat-bot Blabinha através da rede, como um 
 ## _Features_
 
 - Criar chats: sessões permanentes entre requisições;
-- Criar diálogos (_dialogs_): uma seção de intenração com um chat;
+- Criar diálogos (_dialogs_): uma seção de conversa com um chat (pergunta e resposta);
 - Recuperar dados sobre chats ou diálogos anteriores;
-- Apagar dados referentes a chats e diálogos.
+- Editar e apagar dados referentes a chats e diálogos.
 
 ## Tecnologias utilizadas
 
@@ -19,8 +19,8 @@ Um servidor HTTP REST, que expõe o chat-bot Blabinha através da rede, como um 
 
 ## Como usar a API
 
-1. Crie um chat com `POST URL/chats`, opcionalmente, com o modelo de LLM desejado, a estratégia de prompt preferida, e a seção que se deseja começar, para iniciar do 'zero' o valor padrão é `100`. A resposta será em _json_, no modelo `Chat`, com o atributo de `id`. **Armazene esse id**;
-2. Interaja com o chat por meio de diálogos, com `POST URL/dialogs`, enviando o **id do chat** e o **input desejado**, bem como a chave de API do modelo de LLM escolhido, através do _headers_ no campo `Authorization`, com o formato _Bearer_. A resposta será em _json_, no modelo `Dialog`, que contém a resposta gerada por IA, informações sobre aquela seção, e o `Chat` pertencente atualizado.
+1. Crie um chat com `POST URL/chats`, com o modelo de LLM desejad e a estratégia de prompt preferida, e - opcionalmente - a seção que se deseja começar, para iniciar do 'zero' o valor padrão é `100`. A resposta será em _json_ no _schema_ `Chat`, contendo o atributo `id`. **Armazene esse id** para referênciar o chat nas próximas interações;
+2. Interaja com o chat por meio de diálogos, com requisições do tipo `POST URL/dialogs`, enviando o **id do chat** e o **input desejado**, bem como a chave de API do modelo de LLM escolhido, através do _headers_ no campo `Authorization`, com o formato _Bearer_. A resposta será em _json_, no esquema `Dialog`, que contém a resposta gerada por IA, informações sobre aquela seção, e o `Chat` pertencente atualizado.
 
 Veja um exemplo:
 
