@@ -8,12 +8,12 @@ if TYPE_CHECKING:
 
 
 class Token(SQLModel):
-    # refresh_token: str = Field(..., title="Refresh Token", description="Use the refresh token to get a new access token after expiration")
+    refresh_token: str = Field(..., title="Refresh Token", description="Use the refresh token to get a new access token after expiration")
     access_token: str = Field(..., title="Access Token", description="Allows access to protected routes")
     token_type: str
 
 class TokenData(SQLModel):
-    username: str | None = None
+    username: str
 
 
 class UserCreatePayload(SQLModel):
