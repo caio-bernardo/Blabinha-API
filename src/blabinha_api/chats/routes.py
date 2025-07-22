@@ -2,11 +2,13 @@ from typing import Annotated, List
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.exc import NoResultFound
-from sqlmodel import Session
+
+from blabinha_api.accounts.dependencies import get_current_user
+from blabinha_api.accounts.models import User
+from blabinha_api.chats.dependencies import get_chat_service
 
 from . import services
 from .schemas import ChatCreate, ChatPublic, ChatPublicWithDialogs, ChatUpdate
-from ..core.dependencies import db_session
 from ..dialogs.schemas import DialogPublic  # noqa: F401
 from ..accounts.schemas import UserPublic # noqa: F401
 
@@ -21,17 +23,23 @@ api_key_header = HTTPBearer()
 @router.get(
     "/", response_model=list[ChatPublicWithDialogs], status_code=status.HTTP_200_OK
 )
-async def list_chat(*, session: Session = Depends(db_session)):
-    chats = await services.get_all(session)
+async def list_chat(*,
+    user: Annotated[User, Depends(get_current_user)] ,
+    chat_service: Annotated[services.ChatService, Depends(get_chat_service)]
+):
+    chats = await chat_service.get_all()
     return chats
 
 
 @router.get(
     "/{id}", response_model=ChatPublicWithDialogs, status_code=status.HTTP_200_OK
 )
-async def get_chat(id: uuid.UUID, session: Session = Depends(db_session)):
+async def get_chat(id: uuid.UUID,
+    user: Annotated[User, Depends(get_current_user)],
+    chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
+):
     try:
-        return await services.get_one(session, id)
+        return await chat_service.get_one(id)
     except NoResultFound as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
@@ -43,9 +51,12 @@ async def get_chat(id: uuid.UUID, session: Session = Depends(db_session)):
 @router.post(
     "/", response_model=ChatPublicWithDialogs, status_code=status.HTTP_201_CREATED
 )
-async def create_chat(props: ChatCreate, session: Session = Depends(db_session)):
+async def create_chat(props: ChatCreate,
+    user: Annotated[User, Depends(get_current_user)],
+    chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
+):
     try:
-        return await services.create(session, props)
+        return await chat_service.create(props)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
@@ -54,10 +65,12 @@ async def create_chat(props: ChatCreate, session: Session = Depends(db_session))
 
 @router.patch("/{id}", response_model=ChatPublic, status_code=status.HTTP_200_OK)
 async def update_chat(
-    id: uuid.UUID, props: ChatUpdate, session: Session = Depends(db_session)
+    id: uuid.UUID, props: ChatUpdate,
+    user: Annotated[User, Depends(get_current_user)],
+    chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
 ):
     try:
-        return await services.update(session, id, props)
+        return await chat_service.update(id, props)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
@@ -65,9 +78,12 @@ async def update_chat(
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_chat(id: uuid.UUID, session: Session = Depends(db_session)):
+async def delete_chat(id: uuid.UUID,
+    user: Annotated[User, Depends(get_current_user)],
+    chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
+):
     try:
-        await services.delete(session, id)
+        await chat_service.delete(id)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
@@ -76,9 +92,12 @@ async def delete_chat(id: uuid.UUID, session: Session = Depends(db_session)):
 @router.get(
     "/{id}/suggestions", response_model=List[str], status_code=status.HTTP_200_OK
 )
-async def get_suggestions(id: uuid.UUID, api_key: Annotated[HTTPAuthorizationCredentials, Depends(api_key_header)], session: Session = Depends(db_session)):
+async def get_suggestions(id: uuid.UUID, api_key: Annotated[HTTPAuthorizationCredentials, Depends(api_key_header)],
+    user: Annotated[User, Depends(get_current_user)],
+    chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
+):
     try:
-        return await services.get_suggestions(session, id, api_key.credentials)
+        return await chat_service.get_suggestions(id, api_key.credentials)
     except NoResultFound as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
