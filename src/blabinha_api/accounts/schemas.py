@@ -7,15 +7,6 @@ if TYPE_CHECKING:
     from blabinha_api.chats.schemas import ChatPublic
 
 
-class Token(SQLModel):
-    refresh_token: str = Field(..., title="Refresh Token", description="Use the refresh token to get a new access token after expiration")
-    access_token: str = Field(..., title="Access Token", description="Allows access to protected routes")
-    token_type: str
-
-class TokenData(SQLModel):
-    username: str
-
-
 class UserCreatePayload(SQLModel):
     email: EmailStr = Field(..., title="Email", description="Email of the user")
     password: SecretStr = Field(..., title="Password", description="Password of the user")

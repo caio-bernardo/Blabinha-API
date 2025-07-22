@@ -1,12 +1,9 @@
-from typing import Generator
+from typing import Annotated, Generator
+from fastapi import Depends
 from sqlmodel import Session
-from fastapi.security import OAuth2PasswordBearer
 from blabinha_api.database import DatabaseConfig
 
-db = DatabaseConfig()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-
-def db_session() -> Generator[Session, None, None]:
+def db_session(db: Annotated[DatabaseConfig, Depends(DatabaseConfig)]) -> Generator[Session, None, None]:
     with Session(db.engine) as session:
         yield session
