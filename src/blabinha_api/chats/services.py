@@ -1,7 +1,10 @@
 from typing import List
 import uuid
+from fastapi import HTTPException
 from openai import OpenAI
 from sqlmodel import Session, select
+
+from blabinha_api.accounts.models import User
 from .models import Chat
 from .schemas import ChatCreate, ChatUpdate
 from uuid import UUID
@@ -12,9 +15,16 @@ class ChatService:
     def __init__(self, session: Session):
         self.session = session
 
+    async def is_owned_by(self, chat: Chat, user: User) -> bool:
+        return chat.user_id == user.id
+
+
+
     async def get_one(self, id: UUID) -> Chat:
         return self.session.get_one(Chat, id)  # TODO: await with Async Session
 
+    async def get_one_from(self, user: User, id: UUID) -> Chat:
+        return self.session.exec(select(Chat).where(Chat.id == id, Chat.user_id == user.id)).one()
 
     async def get_all(self) -> list[Chat]:
         return list(self.session.exec(select(Chat)).all())
@@ -30,17 +40,25 @@ class ChatService:
         return chat.heroFeatures.split("||")
 
 
-    async def create(self, props: ChatCreate) -> Chat:
-        dbchat = Chat.model_validate(props)
+    async def create(self, props: ChatCreate, owner: User) -> Chat:
+        dbchat = Chat(
+            user_id=owner.id,
+            model=props.model,
+            strategy=props.strategy,
+            current_section=props.init_section
+        )
         self.session.add(dbchat)
         self.session.commit()
         self.session.refresh(dbchat)
         return dbchat
 
 
-    async def update(self, id: uuid.UUID, props: ChatUpdate) -> Chat:
+    async def update(self, id: uuid.UUID, props: ChatUpdate, user: User) -> Chat:
         dbchat = self.session.get_one(Chat, id)
+        if dbchat.user_id != user.id:
+            raise HTTPException(status_code=403, detail="Operation not allowed")
         chat_data = props.model_dump(exclude_unset=True)
+
         dbchat.sqlmodel_update(chat_data)
         self.session.add(dbchat)
         self.session.commit()
@@ -48,13 +66,15 @@ class ChatService:
         return dbchat
 
 
-    async def delete(self, id: uuid.UUID) -> None:
+    async def delete(self, id: uuid.UUID, user: User) -> None:
         chat = self.session.get_one(Chat, id)
+        if chat.user_id != user.id:
+            raise HTTPException(status_code=403, detail="Operation not allowed")
         self.session.delete(chat)
         self.session.commit()
 
-    async def get_suggestions(self, id: uuid.UUID, api_key: str) -> List[str]:
-        chat = self.session.get_one(Chat, id)
+    async def get_suggestions(self, id: uuid.UUID, user: User, api_key: str) -> List[str]:
+        chat = await self.get_one_from(user, id)
         client = OpenAI(api_key=api_key)
         historico = ""
         for dialog in chat.dialogs:

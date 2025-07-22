@@ -30,9 +30,9 @@ class ChatBase(SQLModel):
 
 
 class ChatCreate(SQLModel):
-    model: str
-    strategy: str | None = None
-    init_section: int | None = None
+    model: str = "gpt-3.5-turbo"
+    strategy: str = "one-shot"
+    init_section: int = 100
 
 
 class ChatPublic(ChatBase):

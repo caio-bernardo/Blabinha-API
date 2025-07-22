@@ -1,10 +1,12 @@
 import random
+from typing import TYPE_CHECKING
 
 from openai import OpenAI
-from sqlmodel import Session
-from blabinha_api.dialogs import services
 from blabinha_api.dialogs.models import Dialog
 from blabinha_api.chats.models import Chat
+
+if TYPE_CHECKING:
+    from blabinha_api.dialogs.services import DialogService
 
 
 class Variaveis:
@@ -39,16 +41,17 @@ class Variaveis:
 
 
 class Blab:
-    def __init__(self, api_key: str, chat: Chat, session: Session):
+    def __init__(self, api_key: str, chat: Chat, dialog_service: 'DialogService'):
         self.chat_id = chat.id
         self.modelo = chat.model
         self.strategy = chat.strategy
-        self.session = session
 
         self.client = OpenAI(api_key=api_key)
 
+        self.dialog_service = dialog_service
+
     def get_part2_dialogs(self) -> list[Dialog]:
-        return services.get_all_part_two(self.session, self.chat_id)
+        return self.dialog_service.get_all_part_two(self.chat_id)
 
     def printVerificador(self, tipoVerificador, caso):
         print("\n-------- Verificador: " + tipoVerificador + " -------- ")
@@ -1681,5 +1684,3 @@ class Blab:
                 pass
 
         return 0
-
-

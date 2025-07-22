@@ -1,8 +1,8 @@
 from typing import Annotated, List
 from fastapi import APIRouter, HTTPException, status, Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.exc import NoResultFound
 
+from blabinha_api.config import config
 from blabinha_api.accounts.dependencies import get_current_user
 from blabinha_api.accounts.models import User
 from blabinha_api.chats.dependencies import get_chat_service
@@ -18,18 +18,14 @@ ChatPublicWithDialogs.model_rebuild()
 
 router = APIRouter(prefix="/chats", tags=["chats"])
 
-api_key_header = HTTPBearer()
 
 @router.get(
-    "/", response_model=list[ChatPublicWithDialogs], status_code=status.HTTP_200_OK
+    "/", response_model=list[ChatPublic], status_code=status.HTTP_200_OK
 )
 async def list_chat(*,
     user: Annotated[User, Depends(get_current_user)] ,
-    chat_service: Annotated[services.ChatService, Depends(get_chat_service)]
 ):
-    chats = await chat_service.get_all()
-    return chats
-
+    return user.chats
 
 @router.get(
     "/{id}", response_model=ChatPublicWithDialogs, status_code=status.HTTP_200_OK
@@ -39,7 +35,7 @@ async def get_chat(id: uuid.UUID,
     chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
 ):
     try:
-        return await chat_service.get_one(id)
+        return await chat_service.get_one_from(user, id)
     except NoResultFound as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
@@ -56,7 +52,7 @@ async def create_chat(props: ChatCreate,
     chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
 ):
     try:
-        return await chat_service.create(props)
+        return await chat_service.create(props, user)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
@@ -70,7 +66,7 @@ async def update_chat(
     chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
 ):
     try:
-        return await chat_service.update(id, props)
+        return await chat_service.update(id, props, user)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
@@ -83,7 +79,7 @@ async def delete_chat(id: uuid.UUID,
     chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
 ):
     try:
-        await chat_service.delete(id)
+        await chat_service.delete(id, user)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
@@ -92,12 +88,13 @@ async def delete_chat(id: uuid.UUID,
 @router.get(
     "/{id}/suggestions", response_model=List[str], status_code=status.HTTP_200_OK
 )
-async def get_suggestions(id: uuid.UUID, api_key: Annotated[HTTPAuthorizationCredentials, Depends(api_key_header)],
+async def get_suggestions(
+    id: uuid.UUID,
     user: Annotated[User, Depends(get_current_user)],
     chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
 ):
     try:
-        return await chat_service.get_suggestions(id, api_key.credentials)
+        return await chat_service.get_suggestions(id, user, config.openai_api_key)
     except NoResultFound as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:

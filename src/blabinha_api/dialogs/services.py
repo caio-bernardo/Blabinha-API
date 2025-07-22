@@ -1,6 +1,8 @@
 import uuid
 from sqlmodel import Session, select
 
+from blabinha_api.accounts.models import User
+
 from ..blabinha.Blab import Blab, Variaveis
 from ..chats.schemas import ChatState
 from ..chats.services import ChatService
@@ -14,11 +16,11 @@ class DialogService:
         self.session = session
         self.chat_service = chat_service
 
-    async def interact(self, props: DialogCreate, api_key: str) -> Dialog:
+    async def interact(self, props: DialogCreate, api_key: str, user: User) -> Dialog:
         dialog = Dialog.model_validate(props)
-        chat = await self.chat_service.get_one(props.chat_id)
+        chat = await self.chat_service.get_one_from(user, props.chat_id)
 
-        blab = Blab(api_key, chat, self.session)
+        blab = Blab(api_key, chat, self)
         herofeatures = chat.heroFeatures.split("||")
         variaveis = Variaveis(
             section=chat.current_section,
