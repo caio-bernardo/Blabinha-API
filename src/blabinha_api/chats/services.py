@@ -21,11 +21,13 @@ class ChatService:
 
 
     async def get_history(self, id: uuid.UUID) -> list[str]:
-        raise NotImplementedError("needs dialog relationship")
+        chat: Chat = await self.get_one(id)
+        return [x.answer for x in chat.dialogs]
 
 
     async def get_heroFeatures(self, id: uuid.UUID) -> list[str]:
-        raise NotImplementedError("needs dialog relationship")
+        chat: Chat = await self.get_one(id)
+        return chat.heroFeatures.split("||")
 
 
     async def create(self, props: ChatCreate) -> Chat:
