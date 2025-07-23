@@ -1,9 +1,18 @@
-from fastapi.applications import FastAPI
-from blabinha_api.core import routes as core_routes
-from fastapi.middleware.cors import CORSMiddleware
-from blabinha_api.config import config
+"""
+Ponto de entrada da API
 
-app_runner = FastAPI(title=config.app_name)
+Rotas são declaradas aqui
+"""
+from fastapi.applications import FastAPI
+from blabinha_api.apps.core import routes as core_routes
+from fastapi.middleware.cors import CORSMiddleware
+from blabinha_api.config import settings
+
+app_runner = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    description="API para o chatbot Blabinha"
+)
 
 app_runner.add_middleware(
     CORSMiddleware,

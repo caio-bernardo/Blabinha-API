@@ -8,23 +8,17 @@ Um servidor HTTP REST, que expõe o chat-bot Blabinha através da rede, como um 
 
 ## _Features_
 
-- Criar chats: sessões permanentes entre requisições;
+- Sistema de autenticação e autorização para usuários; permitindo
+- Criar chats: sessões de conversa com a Blabinha;
 - Criar diálogos (_dialogs_): uma seção de conversa com um chat (pergunta e resposta);
 - Recuperar dados sobre chats ou diálogos anteriores;
-- Editar e apagar dados referentes a chats e diálogos.
-
-## Tecnologias utilizadas
-
-- [FastAPI](https://fastapi.tiangolo.com/), para desenvolver os endpoints e o servidor _HTTP_;
-- [SQLModel](https://sqlmodel.tiangolo.com/), para modelar a base de dados e validar as requisições;
-- [Alembic](https://alembic.sqlalchemy.org/en/latest/), para organizar e rodar as migrações da base de dados;
-- [SQLite](https://sqlite.org/index.html), a base de dados, para armazenar as interações com a Blabinha e armazenar _logs_;
-- [UV package manager](https://docs.astral.sh/uv/), para genrenciar e instalar as dependências do projeto.
+- Editar e apagar dados referentes a chats e diálogos;
 
 ## Como usar a API
 
-1. Crie um chat com `POST URL/chats`, com o modelo de LLM desejad e a estratégia de prompt preferida, e - opcionalmente - a seção que se deseja começar, para iniciar do 'zero' o valor padrão é `100`. A resposta será em _json_ no _schema_ `Chat`, contendo o atributo `id`. **Armazene esse id** para referênciar o chat nas próximas interações;
-2. Interaja com o chat por meio de diálogos, com requisições do tipo `POST URL/dialogs`, enviando o **id do chat** e o **input desejado**, bem como a chave de API do modelo de LLM escolhido, através do _headers_ no campo `Authorization`, com o formato _Bearer_. A resposta será em _json_, no esquema `Dialog`, que contém a resposta gerada por IA, informações sobre aquela seção, e o `Chat` pertencente atualizado.
+1. Crie um novo usuário em `/users/register` ou faça _log in_ em `/auth/token`, em ambos os casos você receberá um token de acesso (`access_token`) e um token de recuperação (`refresh_token`), use o token de acesso para acessar os endpoints. Eventualmente o token de acesso irá expirar, requisite um novo token de acesso através de `/auth/refresh` utilizando o token de recuperação. Quando o token de recuperação expirar você terá que fazer _log in_ novamente.
+2. Crie um chat em `/chats`, com o modelo de LLM desejado e a estratégia de prompt preferida, e - opcionalmente - a seção que se deseja começar, para iniciar do 'zero' o valor padrão é `100`. A resposta será em _json_ no _schema_ `Chat`, contendo o atributo `id`. **Armazene esse id** para referênciar o chat nas próximas interações;
+3. Interaja com o chat por meio de diálogos, com requisições do tipo `POST /dialogs`, enviando o **id do chat** e o **input desejado**. A resposta será em _json_, no esquema `Dialog`, que contém a resposta gerada por IA, informações sobre aquela seção, e o `Chat` pertencente atualizado.
 
 Veja um exemplo:
 
@@ -67,19 +61,3 @@ Ou utilize uma aplicação de software que testem requisições HTTP, como [Post
 1. Para rodar a aplicação em **modo de desenvolvimento**, execute `uv run task dev`
 
 > Lembre-se de criar uma nova _branch_, quando for fazer alterações ao código.
-
-### Fazendo migrações
-
-Ao fazer alterações nos modelos que representam tabelas, é preciso atualizar a base de dados, chamamos isso de **migrações**.
-Para fazer isso é preciso executar o comando `alembic`. Veja o exemplo:
-
-Para fazer uma migração:
-```bash
-alembic revision --autogenerate -m "campo adicionado na tabela x"
-alembic upgrade head
-```
-
-Para reverter alterações:
-```bash
-alembic downgrade -1
-```

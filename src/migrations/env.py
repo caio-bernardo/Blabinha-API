@@ -2,8 +2,8 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from blabinha_api.core.models import *  # noqa: F403
-import blabinha_api.config as api_config
+from blabinha_api.apps.core.models import *  # noqa: F403
+from blabinha_api.config import settings
 from sqlmodel import SQLModel
 from alembic import context
 
@@ -27,7 +27,7 @@ target_metadata = SQLModel.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-url = config.set_main_option("sqlalchemy.url", api_config.DATABASE_URL)
+url = config.set_main_option("sqlalchemy.url", settings.database_url)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -41,7 +41,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.set_main_option("sqlalchemy.url", api_config.DATABASE_URL)
+    url = config.set_main_option("sqlalchemy.url", settings.database_url)
     context.configure(
         url=url,
         target_metadata=target_metadata,
