@@ -16,32 +16,11 @@ Um servidor HTTP REST, que expõe o chat-bot Blabinha através da rede, como um 
 
 ## Como usar a API
 
-1. Crie um novo usuário em `/users/register` ou faça _log in_ em `/auth/token`, em ambos os casos você receberá um token de acesso (`access_token`) e um token de recuperação (`refresh_token`), use o token de acesso para acessar os endpoints. Eventualmente o token de acesso irá expirar, requisite um novo token de acesso através de `/auth/refresh` utilizando o token de recuperação. Quando o token de recuperação expirar você terá que fazer _log in_ novamente.
+1. Crie um novo usuário em `/users/register` e faça _log in_ em `/auth/token`, você receberá um token de acesso (`access_token`) e um token de recuperação (`refresh_token`), use o token de acesso para acessar os endpoints. Eventualmente o token de acesso irá expirar, requisite um novo token de acesso através de `/auth/refresh` utilizando o token de recuperação. Quando o token de recuperação expirar você terá que fazer _log in_ novamente. **Para os próximos passos é preciso passar o token de acesso no _header_ `Authorization`**.
 2. Crie um chat em `/chats`, com o modelo de LLM desejado e a estratégia de prompt preferida, e - opcionalmente - a seção que se deseja começar, para iniciar do 'zero' o valor padrão é `100`. A resposta será em _json_ no _schema_ `Chat`, contendo o atributo `id`. **Armazene esse id** para referênciar o chat nas próximas interações;
 3. Interaja com o chat por meio de diálogos, com requisições do tipo `POST /dialogs`, enviando o **id do chat** e o **input desejado**. A resposta será em _json_, no esquema `Dialog`, que contém a resposta gerada por IA, informações sobre aquela seção, e o `Chat` pertencente atualizado.
 
-Veja um exemplo:
-
-- Criando um chat
-```bash
-curl -X POST http://localhost:8000/chats -d '{"model": "gpt-4o"}' -H 'Content-Type: application/json'
-```
-- Criando dialogs
-```bash
-curl -X POST http://localhost:8000/dialogs -d '{"chat_id": X, "input": "Oi"}' -H 'Content-Type: application/json' -H 'Authorization: Bearer XXXXXXXX'
-```
-
-Para mais informações refira-se à documentação em `URL/docs`.
-
-> `URL` refere-se ao endereço da que API está rodando, se ela estiver localmente, será algo como `http://localhost:8000`, ou similar. Em produção o endereço será fornecido pelo provedor.
-
-### Windows
-
-Antes de tudo verifique se o comando utilitário `curl` está instalado:
-```bash
-curl --version
-```
-Se sim, tudo está certo :smile, você pode seguir os exemplos anteriores. Caso contrário, siga este [link](https://curl.se/windows/), e instale o `curl` na sua máquina.
+Para mais informações refira-se à [documentação](./docs/intro.md).
 
 Ou utilize uma aplicação de software que testem requisições HTTP, como [Postman](https://www.postman.com/downloads/) ou [Insomnia](https://insomnia.rest/download).
 
@@ -55,9 +34,25 @@ Ou utilize uma aplicação de software que testem requisições HTTP, como [Post
 
 > Na primeira vez que você executar o _uv_ ele irá instalar todos os pacotes necessários e criar uma pasta _.venv_ na raíz do seu projeto. Essa pasta pode ser usada como ambiente virtual, e ativada com `source ./.venv/bin/activate` (e sua versão do Windows). Se decidir iniciar o ambiente virtual, pode executar todos os comandos demonstrados sem a necessidade do `uv run`.
 
+### Windows
+
+Antes de tudo verifique se o comando utilitário `curl` está instalado:
+```bash
+curl --version
+```
+Se sim, tudo está certo :smile, você pode seguir os exemplos anteriores. Caso contrário, siga este [link](https://curl.se/windows/), e instale o `curl` na sua máquina.
+
 ## Desenvolvendo a API
 
 1. Siga as instruções do tópico anterior
 1. Para rodar a aplicação em **modo de desenvolvimento**, execute `uv run task dev`
 
 > Lembre-se de criar uma nova _branch_, quando for fazer alterações ao código.
+
+### Fazendo migrações
+
+Sempre que adicionar modelos à base de dados, ou quiser modificar seus atributos, é preciso criar uma migração. Faremos isso utilzando o comando `alembic`. Veja abaixo:
+
+```bash
+
+```

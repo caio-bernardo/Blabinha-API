@@ -47,6 +47,8 @@ curl -X 'POST' \
 
 **Response:**
 
+Você receberá um _token de acesso_, um _token de recuperação_ e o tipo desses tokens.
+
 ```json
 {
   "access_token": "your-access-token",
@@ -55,21 +57,23 @@ curl -X 'POST' \
 }
 ```
 
-## Using the Access Token
+## Usando tokens de acesso
 
-Once you have an access token, you need to include it in the `Authorization` header of your requests as a bearer token.
+Uma vez com seu token de acesso, tudo que você precisa fazer é inclui-lo no header `Authorization` a cada requisição como um token do tipo `bearer` Veja abaixo:
 
-**Example:**
+**Examplo:**
 
 ```bash
 curl -X GET -H "Authorization: Bearer your-access-token" http://localhost:8000/users/me
 ```
 
-## Refreshing the Access Token
+Esse token tem um tempo de vida curto (certa de algumas dezenas de minutos), isso é uma medida de segurança. Caso esse token seja comprometido, ele se tornará inútil depois de certo tempo. Para renovar o seu token de acesso é preciso do outro token, o de recuperação.
 
-Access tokens have a limited lifetime. When an access token expires, you can use a refresh token to obtain a new access token without having to re-enter your credentials.
+## Recuperando o token de acesso
 
-To refresh your access token, send a POST request to the `/auth/refresh` endpoint with your refresh token.
+Quando o seu token de acesso expira, você pode utilizar o token de recuperação para obter um novo sem precisar logar novamente.
+
+Para recuperar seu token, faça uma requisição POST para `/auth/refresh` com o seu token de recuperação.
 
 **Request:**
 
@@ -86,3 +90,5 @@ curl -X POST -H "Content-Type: application/json" -d '{"refresh_token": "your-ref
   "token_type": "bearer"
 }
 ```
+
+Agora que estamos autenticados, vamos para o próximo capítulo: [Chats e Diálogos](./chat-and-dialogs.md)

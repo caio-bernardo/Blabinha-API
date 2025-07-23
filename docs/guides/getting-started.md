@@ -36,6 +36,7 @@ Crie um arquivo `.env` baseado no arquivo `.env.example`. Configure seus valores
 ```sh
 DATABASE_URL=sqlite:///db.sqlite3
 
+HASH_ALGORITHM=HS256
 ACCESS_TOKEN_SECRET_KEY=senha-super-secreta
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 REFRESH_TOKEN_SECRET_KEY=outra-senha-super-secreta
@@ -46,6 +47,8 @@ OPENAI_API_KEY=sua-chave-super-secreta
 GEMINI_API_KEY=sua-outra-chave-super-secreta
 ```
 **Recomenda-se**: não exponha essas chaves e secredos!
+
+> Se estiver no linux o comando `openssl rand -hex 32` lhe dará uma sequência hexadecimal aleatória que serve como uma boa senha de segurança.
 
 4. **(Opcional) Entre no ambiente virtual:**
 Desse ponto em diante usaremos o prefixo `uv run` para executar migrar e rodar nossa aplicação, isso serve para rodar nossos scripts python dentro do ambiente virtual. Porém, você também pode iniciar o ambiente virtual dentro da sua shell: `source .venv/bin/activate`.
@@ -61,7 +64,7 @@ Desse ponto em diante usaremos o prefixo `uv run` para executar migrar e rodar n
 
 ## Rodando a aplicação
 
-1. **Start the server:**
+1. **Inicie o server:**
 
    ```bash
    uv run task dev

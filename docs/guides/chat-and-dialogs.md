@@ -1,24 +1,26 @@
-# Chats and Dialogs
+# Chats e Diálogos
 
-This guide explains how to use the chat and dialog endpoints to interact with the Blabinha API.
+Esse capítulo explica como usar chat e dialogs (diálogos) para interagir com a API.
+
+> Nota: é preciso estar autenticado (logado) para usar as rotas a seguir, volte para o capítulo de [autenticação](./authentication.md) se estiver com dúvida de como fazer isso.
 
 ## Chats
 
-Chats represent conversations between a user and the chatbot. You can create, retrieve, and manage your chats using the `/chats` endpoints.
+Um chat representa uma conversa entre o usuário e o chatbot Blabinha. Você pode criar e gerenciar chats, no endpoint `/chats`.
 
-### Creating a Chat
+### Criando um chat
 
-To create a new chat, send a POST request to the `/chats` endpoint.
+Para cria um novo chat envie uma requisção POST para `/chats`. Configure o modelo do seu chat, e, opcionalmente, a estratégia de prompt e o turno inicial.
 
 **Request:**
 
 ```bash
-curl -X POST -H "Authorization: Bearer your-access-token" -H "Content-Type: application/json" -d '{"name": "My First Chat"}' http://localhost:8000/chats
+curl -X POST -H "Authorization: Bearer your-access-token" -H "Content-Type: application/json" -d '{"model": "gpt-4o", "strategy": "one-shot", "initial_section": 100}' http://localhost:8000/chats
 ```
 
-### Listing Your Chats
+### Listando chats
 
-To list your chats, send a GET request to the `/chats` endpoint.
+Para listar os chats do seu usuário, envie uma requisição GET para `/chats`.
 
 **Request:**
 
@@ -26,26 +28,35 @@ To list your chats, send a GET request to the `/chats` endpoint.
 curl -X GET -H "Authorization: Bearer your-access-token" http://localhost:8000/chats
 ```
 
-## Dialogs
+## Dialogs (Diálogos)
 
-Dialogs represent the individual messages within a chat. You can send messages and get suggestions using the `/dialogs` endpoints.
+Dialogs (diálogos) representam mensagens individuais de um chat.
 
-### Sending a Message
+### Enviando uma mensagem
 
-To send a message, send a POST request to the `/dialogs` endpoint with the chat ID and the message content.
+Para enviar uma mensage, faça uma requisição POST para `/dialogs` com o ID do chat e o conteúdo da mensagem.
 
 **Request:**
 
 ```bash
-curl -X POST -H "Authorization: Bearer your-access-token" -H "Content-Type: application/json" -d '{"chat_id": "your-chat-id", "message": "Hello, Blabinha!"}' http://localhost:8000/dialogs
+curl -X POST -H "Authorization: Bearer your-access-token" -H "Content-Type: application/json" -d '{"chat_id": "your-chat-id", "message": "Olá, Blabinha!"}' http://localhost:8000/dialogs
 ```
 
-### Getting Suggestions
+### Sugestões
 
-To get suggestions for what to say next, send a GET request to the `/chats/{chat_id}/suggestions` endpoint.
+Para ter sugestões de tópicos para conversar, envie uma requisição GET para o endpoint `/chats/{chat_id}/suggestions`.
 
 **Request:**
 
 ```bash
 curl -X GET -H "Authorization: Bearer your-access-token" http://localhost:8000/chats/your-chat-id/suggestions
+```
+
+**Response:**
+```json
+[
+  "sugestao A",
+  "sugestao B",
+  "sugestao C"
+]
 ```

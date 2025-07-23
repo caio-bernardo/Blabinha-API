@@ -4,20 +4,10 @@ Documentação para a _Blabinha API_, uma API para o chatbot Blabinha construíd
 
 ## Guias
 Segue alguns guias para ações básicas na API.
-- [Começando](../guides/getting-started.md)
-- [Autenticação](../guides/authentication.md)
-- [Chats e Diálogos](../guides/chat-and-dialogs.md)
-- [Desenvolvendo a API](../guides/developing.md)
+- [Começando](./guides/getting-started.md)
+- [Autenticação](./guides/authentication.md)
+- [Chats e Diálogos](./guides/chat-and-dialogs.md)
 - [Extra: usando o Swagger UI para testar a API](../guides/run-with-swaggerui.md)
-
-## Referências
-Segue um conjunto de referências para navegar no código.
-- [Accounts (Contas de usuário)](../references/accounts.md)
-- [Auth (autenticação)](../references/auth.md)
-- [Blabinha](../references/blabinha.md)
-- [Chats](../references/chats.md)
-- [Dialogs (diálogos)](../references/dialogs.md)
-- [Migrations (migrações)](../references/migrations.md)
 
 ## Arquitetura
 
