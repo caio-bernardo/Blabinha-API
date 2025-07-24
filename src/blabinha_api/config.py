@@ -9,7 +9,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     """Configurações do projeto. Carrega as variáveis de ambiente de mesmo nome (snake_case para SCREAM_CASE)"""
-    app_name: str
+    app_name: str = "Blabinha API"
     app_version: str = "1.0.0"
     database_url: str
 

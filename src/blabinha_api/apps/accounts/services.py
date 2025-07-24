@@ -15,7 +15,7 @@ class UserService:
             return None
 
         # Import here to avoid circular imports
-        from apps.auth.services import TokenService
+        from blabinha_api.apps.auth.services import TokenService
         if not TokenService().verify_password(password, SecretStr(user.hashed_password)):
             return None
         return user
@@ -24,7 +24,7 @@ class UserService:
         if payload.password != payload.confirm_password:
             raise ValueError("Passwords do not match")
         # Import here to avoid circular imports
-        from apps.auth.services import TokenService
+        from blabinha_api.apps.auth.services import TokenService
         user = User(
             email=payload.email,
             hashed_password=TokenService().get_password_hash(payload.password).get_secret_value()
