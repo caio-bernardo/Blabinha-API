@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 
 class Dialog(DialogBase, table=True):
+    """Representação na base de dados de um diálogo"""
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
 
     chat_id: uuid.UUID | None = Field(foreign_key="chat.id")

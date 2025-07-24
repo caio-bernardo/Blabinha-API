@@ -5,7 +5,7 @@ from sqlmodel import Field
 from sqlmodel.main import SQLModel
 
 if TYPE_CHECKING:
-    from blabinha_api.chats.schemas import ChatPublic
+    from blabinha_api.apps.chats.schemas import ChatPublic
 
 
 class DialogBase(SQLModel):

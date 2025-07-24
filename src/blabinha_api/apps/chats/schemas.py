@@ -1,12 +1,13 @@
 from datetime import datetime
 import enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 from sqlmodel import Field
 from sqlmodel.main import SQLModel
 
 if TYPE_CHECKING:
-    from blabinha_api.dialogs.schemas import DialogPublic
+    from blabinha_api.apps.dialogs.schemas import DialogPublic
+    from blabinha_api.apps.accounts.schemas import UserPublic
 
 
 class ChatState(enum.Enum):
@@ -29,13 +30,14 @@ class ChatBase(SQLModel):
 
 
 class ChatCreate(SQLModel):
-    model: str
-    strategy: str | None = None
-    init_section: int | None = None
+    model: str = "gpt-3.5-turbo"
+    strategy: str = "one-shot"
+    init_section: int = 100
 
 
 class ChatPublic(ChatBase):
     id: UUID
+    owner: Optional["UserPublic"] = None
     created_at: datetime
     updated_at: datetime
 

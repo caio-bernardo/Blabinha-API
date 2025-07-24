@@ -1,22 +1,8 @@
 import sys
-from fastapi.applications import FastAPI
 import uvicorn
 from blabinha_api import database
-import blabinha_api.routes as core_routes
-import blabinha_api.config as config
-from fastapi.middleware.cors import CORSMiddleware 
 
-app_runner = FastAPI(title="Blabinha API")
-
-app_runner.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:4200"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-app_runner.include_router(core_routes.router)
+from blabinha_api.app import app_runner
 
 if __name__ == "__main__":
     args = sys.argv
@@ -25,7 +11,7 @@ if __name__ == "__main__":
     else:
         match args[1]:
             case "runserver":
-                uvicorn.run(app_runner, host=config.HOST, port=config.PORT)
+                uvicorn.run(app_runner, host="0.0.0.0", port=8000)
             case "migrate":
                 dbconfig = database.DatabaseConfig()
                 dbconfig.migrate()
