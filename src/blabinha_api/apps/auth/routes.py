@@ -9,7 +9,7 @@ from blabinha_api.apps.accounts.services import UserService
 from blabinha_api.config import settings
 
 from .services import TokenService
-from .schemas import Token
+from .schemas import Token, TokenRefreshPayload
 
 
 router = APIRouter(tags=["auth"], prefix="/auth")
@@ -44,12 +44,12 @@ async def login(
 
 @router.post("/refresh")
 async def refresh_token(
-    refresh_token: str,
+    payload: TokenRefreshPayload,
     userservice: Annotated[UserService, Depends(get_user_service)],
     tokenservice: Annotated[TokenService, Depends(lambda: TokenService())]
 ):
     """Cria um novo token de acesso apartir de um token de recuperação"""
-    sub = await tokenservice.verify_refresh_token(refresh_token, userservice)
+    sub = await tokenservice.verify_refresh_token(payload.refresh_token, userservice)
     if not sub:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -61,4 +61,4 @@ async def refresh_token(
         data={"sub": sub.username},
         expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
+    return Token(access_token=access_token, refresh_token=payload.refresh_token, token_type="bearer")
