@@ -54,5 +54,17 @@ Se sim, tudo está certo :smile, você pode seguir os exemplos anteriores. Caso 
 Sempre que adicionar modelos à base de dados, ou quiser modificar seus atributos, é preciso criar uma migração. Faremos isso utilzando o comando `alembic`. Veja abaixo:
 
 ```bash
-
+alembic upgrade head
 ```
+Esse comando irá rodar todas as migrações, cria uma base de dados com as tabelas que precisamos para a API. Ao modificar, remover e adicionar modelos é preciso criar uma nova migração: 
+
+```bash
+alembic revision --autogenerate -m "Adicionar campo X ao modelo Y"
+```
+Isso criará um script na pasta _migrations_. O alembic cobre a maioria dos casos para migrações, porém pode ser que você precise escrever seu próprio script se estiver fazendo algo muito complicado. Após criar sua migração atualize para a _head_ com o comando anterior. Se quiser voltar uma migração (ou mais) use esse comando:
+```bash
+alembic upgrade -1
+```
+Onde -1 é a migração relativa à atual. Esse parâmetro também pode ser o id da migração.
+
+> As vezes deletar a base de dados e rodar a migração de novo pode resolver conflitos de dados.
