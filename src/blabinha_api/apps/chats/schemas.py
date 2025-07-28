@@ -10,12 +10,13 @@ if TYPE_CHECKING:
     from blabinha_api.apps.accounts.schemas import UserPublic
 
 class StrategyEnum(str, Enum):
-    zero_shot = "zero-shot"
-    one_shot = "one-shot"
-    few_shot = "few-shot"
-    step_by_step = "step-by-step"
-    chain_of_thought = "chain-of-thought"
-    self_consistency = "self-consistency"
+    ZERO_SHOT = "zero_shot"
+    ONE_SHOT = "one_shot"
+    FEW_SHOT = "few_shots"
+    STEP_BY_STEP = "step_by_step"
+    CHAIN_OF_THOUGHT = "chain_of_thought"
+    SELF_CONSISTENCY = "self_consistency"
+
 
 class ChatState(Enum):
     OPEN = True
@@ -24,7 +25,7 @@ class ChatState(Enum):
 
 class ChatBase(SQLModel):
     model: str = Field(default="gpt-4o")
-    strategy: StrategyEnum = Field(default=StrategyEnum.zero_shot)
+    strategy: StrategyEnum = Field(default=StrategyEnum.ONE_SHOT)
     state: ChatState = Field(default=ChatState.OPEN)
     current_section: int = Field(default=100)
     bonusQnt: int = Field(default=0)
@@ -38,7 +39,7 @@ class ChatBase(SQLModel):
 
 class ChatCreate(SQLModel):
     model: str = "gpt-3.5-turbo"
-    strategy: StrategyEnum = StrategyEnum.one_shot
+    strategy: StrategyEnum = StrategyEnum.ONE_SHOT
     init_section: int = 100
 
 

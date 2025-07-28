@@ -1,12 +1,40 @@
 import random
+import importlib
+
 from typing import TYPE_CHECKING
 
 from openai import OpenAI
 from blabinha_api.apps.dialogs.models import Dialog
 from blabinha_api.apps.chats.models import Chat
+from blabinha_api.apps.chats.schemas import StrategyEnum
 
 if TYPE_CHECKING:
     from apps.dialogs.services import DialogService
+
+class PromptStrategy:
+    def __init__(self, original_strategy):
+        self.strategy = StrategyEnum(original_strategy)
+        print("Estratégia selecionada: ", self.strategy.value)
+
+    def snake_to_camel(self, snake_string: str) -> str:
+        return ''.join(word.capitalize() for word in snake_string.split('_'))
+
+    def get_strategy(self):
+        try:
+            self.module_name = f"blabinha_api.apps.blabinha.prompt_engineering.{self.strategy.value}"
+
+            self.class_name = self.snake_to_camel(self.strategy.value)
+
+            strategy_module = importlib.import_module(self.module_name)
+            strategy_class = getattr(strategy_module, self.class_name)
+
+            return strategy_class()
+
+        except ModuleNotFoundError:
+            raise ValueError(f"Estratégia '{self.strategy.value}', com module '{self.module_name}' e classe '{self.class_name}' não encontrada.")
+
+        except AttributeError:
+            raise ValueError(f"A classe correspondente à estratégia '{self.strategy.value}' não foi encontrada no módulo.")
 
 
 class Variaveis:
@@ -44,7 +72,8 @@ class Blab:
     def __init__(self, api_key: str, chat: Chat, dialog_service: 'DialogService'):
         self.chat_id = chat.id
         self.modelo = chat.model
-        self.strategy = chat.strategy
+        self.strategy = PromptStrategy(chat.strategy).get_strategy()
+        print("Estratégia selecionada:", self.strategy)
 
         self.client = OpenAI(api_key=api_key)
 
