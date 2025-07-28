@@ -15,3 +15,6 @@ wheels/
 # Databases
 *.db
 *.sqlite3
+
+# Vscode
+.vscode
