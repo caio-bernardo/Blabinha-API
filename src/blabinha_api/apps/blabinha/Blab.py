@@ -758,20 +758,20 @@ class Blab:
         return variaveis
 
     def verificaAlternativa(self, variaveis):
-        prompt = self.strategy.secao240_teste_verifica_alternativas(variaveis[1], variaveis[2])
-        contexto = variaveis[2]
-        print(f"variavel 1 (verificaAlternativa): {variaveis[1]}\n")
-        print(f"variavel 2 (verificaAlternativa): {variaveis[2]}\n")
+        prompt = self.strategy.secao240_teste_verifica_alternativas(variaveis.input, variaveis.answer)
+        contexto = variaveis.answer
+        print(f"variavel 1 (verificaAlternativa): {variaveis.input}\n")
+        print(f"variavel 2 (verificaAlternativa): {variaveis.answer}\n")
         print("dentro de verifica Alternativa")
         print("**limite está em", variaveis.repetition)
         messages=prompt
         response = br.call(messages)
         if (response.choices[0].message.content.upper().__contains__("FALSE")):
             variaveis.repetition += 1
-            prompt = self.strategy.secao240NaoFalouAlternativa(variaveis[1], contexto)
+            prompt = self.strategy.secao240NaoFalouAlternativa(variaveis.input, contexto)
             messages=prompt
             response = br.call(messages)
-            variaveis[2] = self.enviaResultados([response], variaveis)
+            variaveis.answer = self.enviaResultados([response], variaveis)
             return False
         else:
             # se falou a alternativa correta
