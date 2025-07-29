@@ -4,7 +4,7 @@ import time
 from typing import Any, Dict, List
 from types import SimpleNamespace
 
-model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+model_id = "meta-llama/Llama-3.2-3B-Instruct"
 
 pipeline = transformers.pipeline(
     "text-generation",
