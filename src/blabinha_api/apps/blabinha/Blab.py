@@ -776,7 +776,6 @@ class Blab:
         else:
             # se falou a alternativa correta
             return True
-        
 
     def secao260(self, variaveis: Variaveis):
         def retornaValor(status):
