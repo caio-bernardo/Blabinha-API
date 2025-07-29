@@ -795,62 +795,26 @@ class Blab:
         result = self.verificaTerminar2(variaveis)
 
         if result is True and variaveis.section < 270:
-            response2 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 150 palavras",
-                    },
-                    {"role": "assistant", "content": variaveis.answer},
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "system",
-                        "content": "Tente convencer a ela não terminar e continuar no desafio",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao260Convencer(variaveis.input, variaveis.answer)
+            messages = prompt
+            response2 = br.call(messages)
             respostas = [response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
             variaveis.section += 10
             return variaveis
 
         elif result is True and variaveis.section >= 270:
-            response2 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 150 palavras",
-                    },
-                    {"role": "assistant", "content": variaveis.answer},
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "system",
-                        "content": "Diga que tudo bem que ela não queira participar do desafio. Termine dizendo que esse chat vai ser encerrado e se quiser falar denovo tera de abrir um novo chat",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao260ChatEncerrado(variaveis.input, variaveis.answer)
+            messages = prompt
+            response2 = br.call(messages)
             respostas = [response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
             variaveis.section = 295
             return variaveis
         else:
-            response1 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 100 palavras",
-                    },
-                    {"role": "assistant", "content": variaveis.answer},
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "system",
-                        "content": "Demonstre que está feliz pela pessoa não ter deistido e diga que ela pode continuar",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao260NaoDesistiu(variaveis.input, variaveis.answer)
+            messages = prompt
+            response1 = br.call(messages)
 
             respostas = [response1]
             falaLLM = self.enviaResultados(respostas, variaveis)
@@ -860,38 +824,18 @@ class Blab:
             return variaveis
 
     def secao280(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                },
-                {
-                    "role": "system",
-                    "content": "Verifique se a pessoa realmente quer seguir para criação do héroi. Responda TRUE se sim e FALSE se não.",
-                },
-            ],
-        )
+        prompt = self.strategy.secao280VerificaContinuar(variaveis.input, variaveis.answer)
+        messages = prompt
+        response = br.call(messages)
+
         assert response.choices[0].message.content is not None
+
         if response.choices[0].message.content.upper().__contains__("TRUE"):
             return self.secao300(variaveis)
 
-        response1 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 100 palavras",
-                },
-                {
-                    "role": "system",
-                    "content": "Demonstre que está feliz pela pessoa querer jogar mais e diga que ela pode continuar",
-                },
-            ],
-        )
+        prompt = self.strategy.secao280Continuar()
+        messages = prompt
+        response1 = br.call(messages)
 
         respostas = [response1]
         falaLLM = self.enviaResultados(respostas, variaveis)
@@ -902,40 +846,18 @@ class Blab:
         return variaveis
 
     def secao300(self, variaveis: Variaveis):
-        response1 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                },
-                {
-                    "role": "system",
-                    "content": "Diga que agora para criar o héroi a pessoa(criança) precisa ter paciência pois você(blabinha) "
-                    + "precisa ler toda conversa com ajuda de um script e então avaliar. Diga também que a pessoa(criança) só pode escrever depois que a Blabinha falar algo. Termine dizendo que para começar basta a pessoa escrever qualquer coisa",
-                },
-            ],
-        )
+        prompt = self.strategy.secao300()
+        messages=prompt
+        response1 = br.call(messages)
         falaLLM = self.enviaResultados([response1], variaveis)
         variaveis.answer = falaLLM
         variaveis.section = 310
         return variaveis
 
     def secao305(self, variaveis: Variaveis):
-        response1 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                },
-                {
-                    "role": "system",
-                    "content": "Diga que a pessoa conversou tanto que chegou no final e que agora vamos para criação do herói. Para criar o héroi a pessoa(criança) precisa ter paciência pois você(blabinha) "
-                    + "precisa ler toda conversa com ajuda de um script e então avaliar. Diga também que a pessoa(criança) só pode escrever depois que a Blabinha falar algo. Termine dizendo que para começar basta a pessoa escrever qualquer coisa",
-                },
-            ],
-        )
+        prompt = self.strategy.secao305()
+        messages=prompt
+        response1 = br.call(messages)
         falaLLM = self.enviaResultados([response1], variaveis)
         variaveis.answer = falaLLM
         variaveis.section = 310
@@ -1051,122 +973,40 @@ class Blab:
 
         bonus = self.get_bonus(dialogs)
 
-        response1 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                },
-                {
-                    "role": "system",
-                    "content": "Explique que agora você vai começar a dar a pontuação do jogo."
-                    + "Depois, diga que analisando o quanto ela interagiu ela ganhou: "
-                    + str(estrelas)
-                    + "estrelas de um total de quatro"
-                    + "Termine analisando a quantidade que a criança conseguiu",
-                },
-            ],
-        )
+        prompt = self.strategy.secao310QuantidadeEstrela(estrelas)
+        messages=prompt
+        response1 = br.call(messages)
 
-        response2 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                },
-                {
-                    "role": "system",
-                    "content": "Siga os passos a seguir para gerar a saida:"
-                    + "1 - Explique que agora você vai fazer uma analise de topicos sobre toda conversa. 2 - Diga que ela falou"
-                    + str(topicos[0])
-                    + " e "
-                    + str(topicos[1])
-                    + " e "
-                    + str(topicos[2])
-                    + "Termine falando que ela conseguiu "
-                    + str(topicos[3])
-                    + "estrelas por causa disso de um total de 4",
-                },
-            ],
-        )
+
+        prompt = self.strategy.secao310QuantidadeTopicos(topicos)
+        messages=prompt
+        response2 = br.call(messages)
 
         if not bonus:
-            response3 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Diga que a pessoa não conseguiu chamar nenhum bônus e por isso não ganhou nenhuma estrela!",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao310NaoConseguiuBonus()
+            messages=prompt
+            response3 = br.call(messages)
             variaveis.add_hero_feature("Nada")
 
         else:
-            response3 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Diga que a pessoa ganhou achou um bônus e por isso ganhou duas estrelas! Termine dizendo que a ferramenta :"
-                        + bonus
-                        + "vai ser usada pelo super-herói.",
-                    },
-                ],
-            )
+            # bonus ou ferramenta?
+            prompt = self.strategy.secao310ConseguiuBonus(bonus)
+            messages=prompt
+            response3 = br.call(messages)
             variaveis.add_star(2)
             variaveis.add_hero_feature(bonus)
 
         if qQuestoes >= 1:
-            response4 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Siga os passos a seguir para gerar a saida:"
-                        + "1 - Diga que a pessoa respondeu  "
-                        + str(qQuestoes)
-                        + " perguntas de um total de 3 e que por isso ela vai poder escolher "
-                        + str(qQuestoes + 1)
-                        + " atributos do herói."
-                        + "2 - Termine dizendo que o primeiro atributo é a roupa do super herói, então pergunte como ela quer que seja a roupa do herói",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao310QuantidadeQuestoes(qQuestoes)
+            messages=prompt
+            response4 = br.call(messages)
             resposta = [response1, response2, response3, response4]
             variaveis.answer = self.enviaResultados(resposta, variaveis)
             variaveis.section = self.escolheQuestões(qQuestoes)
         else:
-            response4 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Siga os passos a seguir para gerar a saida:"
-                        + "1 - Diga que como a pessoa não respondeu corretamente nenhuma pergunta. E por isso só podera escolher uma caracteristica do herói"
-                        + "2 - Diga para ela não ficar triste pois mesmo não acertando podera escolher a cor da roupa do herói. "
-                        + "3 - Terminando perguntado qual cor de roupa ela quer para seu super herói?",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao310NaoRespondeuQuestoes()
+            messages=prompt
+            response4 = br.call(messages)
             resposta = [response1, response2, response3, response4]
             variaveis.answer = self.enviaResultados(resposta, variaveis)
             variaveis.section = 352
@@ -1174,19 +1014,9 @@ class Blab:
 
     def secao320(self, variaveis: Variaveis):
         variaveis.add_hero_feature(variaveis.input)
-        response1 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                },
-                {
-                    "role": "system",
-                    "content": "Diga que o segundo atributo é a capa, então pergunte como ela quer que seja a capa do herói",
-                },
-            ],
-        )
+        prompt = self.strategy.secao320()
+        messages=prompt
+        response1 = br.call(messages)
         resposta = [response1]
         variaveis.answer = self.enviaResultados(resposta, variaveis)
         if variaveis.section > 322:
@@ -1197,19 +1027,9 @@ class Blab:
 
     def secao330(self, variaveis: Variaveis):
         variaveis.add_hero_feature(variaveis.input)
-        response1 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                },
-                {
-                    "role": "system",
-                    "content": "Diga que o terceiro atributo é o companheiro de exploração, então pergunte qual companheiro o herói vai ter?",
-                },
-            ],
-        )
+        prompt = self.strategy.secao330()
+        messages=prompt
+        response1 = br.call(messages)
         resposta = [response1]
         variaveis.answer = self.enviaResultados(resposta, variaveis)
         if variaveis.section > 333:
@@ -1220,19 +1040,9 @@ class Blab:
 
     def secao340(self, variaveis: Variaveis):
         variaveis.add_hero_feature(variaveis.input)
-        response1 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                },
-                {
-                    "role": "system",
-                    "content": "Diga que o quarto atributo é a casa do herói, então pergunte como será a casa do herói?",
-                },
-            ],
-        )
+        prompt = self.strategy.secao340()
+        messages=prompt
+        response1 = br.call(messages)
         resposta = [response1]
         variaveis.answer = self.enviaResultados(resposta, variaveis)
         variaveis.section = 350
@@ -1262,22 +1072,9 @@ class Blab:
 
     def secao350(self, variaveis: Variaveis):
         variaveis.add_hero_feature(variaveis.input)
-        response1 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                },
-                {
-                    "role": "system",
-                    "content": " Diga que a pessoa conseguiu "
-                    + str(variaveis.stars)
-                    + " estrelas de um total de 10."
-                    + "Então reaja a quantidade de estrelas que ela ganhou. E termine dizendo que o héroi foi criado e que tem uma imagem dele.",
-                },
-            ],
-        )
+        prompt = self.strategy.secao350(str(variaveis.stars))
+        messages=prompt
+        response1 = br.call(messages)
 
         prompt = self.getHeroFeature(variaveis)
 
@@ -1322,14 +1119,13 @@ class Blab:
             "**IMPORTANTE**: Responda SOMENTE com o número da emoção, sem texto adicional.\n"
             "Exemplos de resposta: `1` ou `4`\n"
         )
-
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
+        
+        messages=[
                 {"role": "system", "content": prompt},
                 {"role": "user", "content": variaveis.answer},
-            ],
-        )
+            ]
+        
+        response = br.call(messages)
 
         content = response.choices[0].message.content
 
