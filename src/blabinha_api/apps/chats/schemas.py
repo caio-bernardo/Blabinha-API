@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from blabinha_api.apps.dialogs.schemas import DialogPublic
     from blabinha_api.apps.accounts.schemas import UserPublic
 
+
 class StrategyEnum(str, Enum):
     ZERO_SHOT = "zero_shot"
     ONE_SHOT = "one_shot"
@@ -18,13 +19,20 @@ class StrategyEnum(str, Enum):
     SELF_CONSISTENCY = "self_consistency"
 
 
+class ModelEnum(str, Enum):
+    GPT = 'gpt'
+    LLAMA = 'llama'
+    QWEN = 'qwen'
+    GEMINI = 'gemini'
+
+
 class ChatState(Enum):
     OPEN = True
     CLOSE = False
 
 
 class ChatBase(SQLModel):
-    model: str = Field(default="gpt-4o")
+    model: ModelEnum = Field(default=ModelEnum.GPT)
     strategy: StrategyEnum = Field(default=StrategyEnum.ONE_SHOT)
     state: ChatState = Field(default=ChatState.OPEN)
     current_section: int = Field(default=100)
@@ -38,7 +46,7 @@ class ChatBase(SQLModel):
 
 
 class ChatCreate(SQLModel):
-    model: str = "gpt-3.5-turbo"
+    model: ModelEnum = ModelEnum.GPT
     strategy: StrategyEnum = StrategyEnum.ONE_SHOT
     init_section: int = 100
 
@@ -55,7 +63,7 @@ class ChatPublicWithDialogs(ChatPublic):
 
 
 class ChatUpdate(SQLModel):
-    model: str | None = None
+    model: ModelEnum | None = None
     strategy: StrategyEnum | None = None
     current_section: int | None = None
     bonusQnt: int | None = None

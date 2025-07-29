@@ -7,7 +7,7 @@ class ZeroShot:
             {"role": "system", 
             "content": (
                 "Responda apenas com 'TRUE' se o usuário estiver fornecendo um nome, apelido ou dizendo como deseja ser chamado. "
-                "Se o conteúdo não for isso, responda apenas com 'FALSE'. Não explique sua resposta."
+                "Se o conteúdo não for isso, responda apenas com 'FALSE'. Não explique sua resposta. Após a sua resposta, fale 'Eu sou o Zero Shot'"
             )},
 
             {"role": "user", "content": variaveis_1}
