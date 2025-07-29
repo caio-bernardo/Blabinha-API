@@ -99,20 +99,20 @@ class Blab:
     # Formata a resposta do gpt, envia para criação de logs e retorna a resposta formatada
     def enviaResultados(self, respostas, variaveis: Variaveis) -> str:
         # Inicio as duas variaveis
-        falaGPT_total: str = ""
+        falaLLM_total: str = ""
         tokens = 0
         # lista = []
         # Recebo as respostas do GPT e formato os valores
         for r in respostas:
-            falaGPT = r.choices[0].message.content
-            falaGPT = falaGPT.replace(".", ".\n")
-            falaGPT_total = falaGPT_total + "||" + falaGPT
+            falaLLM = r.choices[0].message.content
+            falaLLM = falaLLM.replace(".", ".\n")
+            falaLLM_total = falaLLM_total + "||" + falaLLM
             tokens = tokens + r.usage.total_tokens
 
-        # lista.append(falaGPT_total)
+        # lista.append(falaLLM_total)
         variaveis.tokens += tokens
         # Retorno a resposta do GPT formatada
-        return falaGPT_total
+        return falaLLM_total
 
     # Escolhe qual sequencia de prompt vai ser usada para responder
     def escolheParte(self, variaveis: Variaveis):
@@ -216,16 +216,14 @@ class Blab:
 
     # Após detectar que ele falou o nome:
     def extraiNome(self, variaveis: Variaveis)-> str:
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Extraia apenas o nome ou apelido que o usuário quer usar. Seja sucinto, responda apenas o nome, sem frases adicionais.",
-                },
-                {"role": "user", "content": variaveis.input},
-            ],
-        )
+        messages=[
+            {
+                "role": "system",
+                "content": "Extraia apenas o nome ou apelido que o usuário quer usar. Seja sucinto, responda apenas o nome, sem frases adicionais.",
+            },
+            {"role": "user", "content": variaveis.input},
+        ]
+        response = br.call(messages)
         content = response.choices[0].message.content
         if content is None:
             return ""
@@ -248,8 +246,8 @@ class Blab:
             messages = prompt
             response = br.call(messages)
 
-            falaGPT = self.enviaResultados([response], variaveis)
-            variaveis.answer = falaGPT
+            falaLLM = self.enviaResultados([response], variaveis)
+            variaveis.answer = falaLLM
             return True
 
         else:
@@ -266,9 +264,9 @@ class Blab:
         response = br.call(messages)
 
 
-        falaGPT = response.choices[0].message.content
+        falaLLM = response.choices[0].message.content
         self.printVerificador(
-            "Verifica Desafio", "verifica Desafio saida :" + str(falaGPT)
+            "Verifica Desafio", "verifica Desafio saida :" + str(falaLLM)
         )
         assert response.choices[0].message.content is not None
         if response.choices[0].message.content.upper().__contains__("TRUE"):
@@ -321,8 +319,8 @@ class Blab:
             prompt = self.strategy.pediu_dica()
             messages = prompt
             response = br.call(messages)
-            falaGPT = self.enviaResultados([response], variaveis)
-            variaveis.answer = falaGPT
+            falaLLM = self.enviaResultados([response], variaveis)
+            variaveis.answer = falaLLM
             return True
 
         else:
@@ -342,8 +340,8 @@ class Blab:
             prompt = self.strategy.verifica_realmente_terminar(variaveis.input)
             messages = prompt
             response = br.call(messages)
-            falaGPT = self.enviaResultados([response], variaveis)
-            variaveis.answer = falaGPT
+            falaLLM = self.enviaResultados([response], variaveis)
+            variaveis.answer = falaLLM
             variaveis.section += 50
             return True
 
@@ -365,8 +363,8 @@ class Blab:
             prompt = self.strategy.verifica_realmente_terminar(variaveis.input)
             messages = prompt
             response = br.call(messages)
-            falaGPT = self.enviaResultados([response], variaveis)
-            variaveis.answer = falaGPT
+            falaLLM = self.enviaResultados([response], variaveis)
+            variaveis.answer = falaLLM
             variaveis.section += 10
             return True
 
@@ -384,8 +382,8 @@ class Blab:
         if frase in possibilidades:
             messages = prompt
             response1 = br.call(messages)
-            falaGPT = self.enviaResultados([response1], variaveis)
-            variaveis.answer = falaGPT
+            falaLLM = self.enviaResultados([response1], variaveis)
+            variaveis.answer = falaLLM
             variaveis.section += 70
             return True
 
@@ -427,9 +425,9 @@ class Blab:
             response1 = br.call(messages)
 
             respostas = [response,response1]
-            falaGPT = self.enviaResultados(respostas, variaveis)    
+            falaLLM = self.enviaResultados(respostas, variaveis)    
             falaRotativa = self.secao225(variaveis)
-            variaveis[2] = falaGPT + falaRotativa  
+            variaveis[2] = falaLLM + falaRotativa  
 
             return False
 
@@ -439,15 +437,15 @@ class Blab:
         messages = prompt
         response = br.call(messages)
         
-        falaGPT = response.choices[0].message.content
+        falaLLM = response.choices[0].message.content
 
-        assert falaGPT is not None
+        assert falaLLM is not None
 
-        if "FALSE" in falaGPT.upper():
+        if "FALSE" in falaLLM.upper():
             self.printVerificador("Verifica Bonus", "Não caiu no caso Bonus")
             return False
 
-        elif "TRUE" in falaGPT.upper():
+        elif "TRUE" in falaLLM.upper():
             self.printVerificador("Verifica Bonus", "Caiu no caso Bonus")
             return True
 
@@ -456,11 +454,11 @@ class Blab:
         messages = prompt
         response = br.call(messages)
 
-        falaGPT = response.choices[0].message.content
+        falaLLM = response.choices[0].message.content
 
-        assert falaGPT is not None
+        assert falaLLM is not None
 
-        if "FALSE" in falaGPT.upper():
+        if "FALSE" in falaLLM.upper():
             self.printVerificador("Verifica Bonus - Heroi", "Não caiu no caso Bonus")
             return False
 
@@ -586,50 +584,22 @@ class Blab:
             return variaveis
 
         if result is False and variaveis.section == 141:
-            response2 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 100 palavras",
-                    },
-                    {"role": "assistant", "content": variaveis.answer},
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "system",
-                        "content": "Diga que tudo bem que ela não queira participar do desafio. Termine dizendo que esse chat vai ser encerrado e se quiser falar denovo tera de abrir um novo chat",
-                    },
-                ],
-            )
+
+            prompt = self.strategy.secao140EncerrarConversa(variaveis.input, variaveis.answer)
+            messages=prompt
+            response2 = br.call(messages)
             respostas = [response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
             variaveis.section += 1
             return variaveis
 
-        response1 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Refaça a frase abaixo mantendo o mesmo significado e para parecer que está falando com uma criança",
-                },
-                {
-                    "role": "user",
-                    "content": "As regras do desafio são as seguintes: Primeiro é preciso fazer perguntas para mim (Blabinha), essas perguntas tem que que ser sobre a o assunto "
-                    + " Amazônia azul. Quanto mais você manter no assunto mais pontos vai ganhar. Caso não saiba sobre o que falar pode pedir dica de algum assunto."
-                    + "Além disso você pode pedir para terminar e sair a hora que quiser",
-                },
-            ],
-        )
-        response2 = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Pergunte se a pessoa entendeu as regras. Use no maximo 40 palavras",
-                }
-            ],
-        )
+        prompt = self.strategy.secao140ReformularRegrasInfantil()
+        messages=prompt
+        response1 = br.call(messages)
+        
+        prompt = self.strategy.secao140PerguntarEntendeuRegras()
+        messages=prompt
+        response2 = br.call(messages)
 
         respostas = [response1, response2]
         variaveis.answer = self.enviaResultados(respostas, variaveis)
@@ -637,29 +607,21 @@ class Blab:
         return variaveis
 
     def secao205(self, variaveis: Variaveis):
+        prompt = self.strategy.secao205(variaveis.input)
+
         if self.verificaRegras(variaveis) is False:
             return variaveis
 
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 50 palavras.",
-                },
-                {
-                    "role": "system",
-                    "content": "Explique que agora a pessoa precisa fazer perguntas sobre Amazônia Azul e que você vai responde-las",
-                },
-            ],
-        )
+        messages=prompt
+        response = br.call(messages)
 
         variaveis.answer = self.enviaResultados([response], variaveis)
         variaveis.section = 210
         return variaveis
 
     def secao210(self, variaveis: Variaveis):
+        print("variavel 0 antes", variaveis.section)
+        print("variavel 3 antes", variaveis.bonus)
         quests = [212, 214, 216]
 
         if self.verificaParte03(variaveis) is True:
@@ -674,90 +636,53 @@ class Blab:
         if self.verificaContexto(variaveis) is False:
             return variaveis
 
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança use um tom infantil. Use no máximo 150 palavras.",
-                },
-                {
-                    "role": "system",
-                    "content": "Amazônia Azul é a região que compreende a superfície do mar, águas sobrejacentes ao leito do mar, solo e subsolo marinhos contidos na extensão atlântica que se projeta a partir do litoral até o limite exterior da Plataforma Continental brasileira."
-                    "Podemos resumir como tudo que envolve o Mar Brasileiro, fauna, flora e microorganismos",
-                },
-                {
-                    "role": "system",
-                    "content": "Sabendo disso tudo responda a pergunta que foi feita",
-                },
-            ],
-        )
+        prompt = self.strategy.secao210ResponderPergunta(variaveis.input)
+        messages=prompt
+        response = br.call(messages)
+
+        prompt = self.strategy.secao210FazerQuestao(variaveis.input, response.choices[0].message.content)
 
         if variaveis.section in quests:
-            response1 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "assistant",
-                        "content": response.choices[0].message.content,
-                    },
-                    {
-                        "role": "system",
-                        "content": "Explique que vai fazer agora um questão sobre o assunto tratado. Use no máximo 50 palavras",
-                    },
-                ],
-            )
-            response2 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "assistant",
-                        "content": response.choices[0].message.content,
-                    },
-                    {
-                        "role": "system",
-                        "content": "Dado o assunto tratado gere uma questão contendo 4 alternativas e uma só resposta correta enumere elas de 1) a 4). Fale somente a questão e as alternativas, não passe a resposta.",
-                    },
-                ],
-            )
+            messages=prompt
+            response1 = br.call(messages)
+
+            prompt = self.strategy.secao210QuestaoAlternativa(variaveis.input, response.choices[0].message.content)
+
+            messages=prompt
+            response2 = br.call(messages)
+
             resposta = [response, response1, response2]
             variaveis.answer = self.enviaResultados(resposta, variaveis)
             variaveis.section += 21
+            print("variavel 0 (21)", variaveis.section)
             return variaveis
 
         if not (self.verificaBonus(variaveis)):
+            print("caiu no bonus")
+
+            prompt = self.strategy.secao210Bonus(variaveis.input, response.choices[0].message.content)
+
             if variaveis.bonus < 1:
-                response2 = self.client.chat.completions.create(
-                    model=self.modelo,
-                    messages=[
-                        {"role": "user", "content": variaveis.input},
-                        {
-                            "role": "assistant",
-                            "content": response.choices[0].message.content,
-                        },
-                        {
-                            "role": "system",
-                            "content": "Demonstre animação e  diga que a pessoa caiu em um bonus! Pergunte a ela que ferramenta o super-heroi vai usar. Dado o assunto tratado dê 4 possibilidades"
-                            "de ferramentas que o heroi pode usar para proteger o mar do Brasil. Enumere elas de 1) a 4) como se fosse uma pergunta com alternativas. Use no maximo 120 palavras ",
-                        },
-                    ],
-                )
+                print("caiu aquiaa1")
+                messages=prompt
+                response2 = br.call(messages)
+
                 resposta = [response, response2]
                 variaveis.section += 31
                 variaveis.answer = self.enviaResultados(resposta, variaveis)
                 variaveis.bonus += 1
+                print("variavel 0 (31)", variaveis.section)
+                print("variavel 3", variaveis.bonus)
                 return variaveis
 
         resposta = [response]
 
-        falaGPT = self.enviaResultados(resposta, variaveis)
+        falaLLM = self.enviaResultados(resposta, variaveis)
         falaRotativa = self.secao225(variaveis)
 
         variaveis.section += 1
-        variaveis.answer = falaGPT + falaRotativa
+        print("variavel 0 fora", variaveis.section)
+        variaveis.answer = falaLLM + falaRotativa
 
         return variaveis
 
@@ -767,108 +692,91 @@ class Blab:
         if alea == 1:
             print("\n--------  caso1  -------- ")
 
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no maximo 30 palavras.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Diga que a pessoa pode fazer mais perguntas ou pode pedir para terminar",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao225Caso1()
+            messages=prompt
+            response = br.call(messages)
         elif alea == 2:
             print("\n--------  caso2  -------- ")
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no maximo 30 palavras.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Diga que a pessoa pode fazer mais perguntas e também caso não saiba um assunto pode pedir dicas",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao225Caso2()
+            messages=prompt
+            response = br.call(messages)
         elif alea == 3:
             print("\n--------  caso3  -------- ")
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no maximo 30 palavras.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Diga que a pessoa pode fazer mais perguntas mas não deve se esquecer que tem que falar sobre Amazônia Azul",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao225Caso3()
+            messages=prompt
+            response = br.call(messages)
         else:
             print("\n--------  caso4  -------- ")
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no maximo 30 palavras.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Diga que a pessoa pode fazer mais perguntas",
-                    },
-                ],
-            )
-
+            print("\n--------  caso4  -------- ")
+            prompt = self.strategy.secao225Caso4()
+            messages=prompt
+            response = br.call(messages)
+            
         resposta = [response]
 
-        falaGPT = self.enviaResultados(resposta, variaveis)
+        falaLLM = self.enviaResultados(resposta, variaveis)
 
-        return falaGPT
+        return falaLLM
 
     def secao230(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Verifique se a resposta está certa. Parabenize se estiver correta e se estiver errada explique o que está errado e qual seria a correta. Use no máximo 50 palavras",
-                },
-            ],
-        )
+        print("entrou aqui no 230")
+        print("variaveis[0] antes de atualizada no 230", variaveis[0])
+        prompt = self.strategy.secao230(variaveis.input, variaveis.answer)
+        messages=prompt
+        response = br.call(messages)
         resposta = [response]
         variaveis.section -= 20
-        falaGPT = self.enviaResultados(resposta, variaveis)
+        falaLLM = self.enviaResultados(resposta, variaveis)
         falaRotativa = self.secao225(variaveis)
-        variaveis.answer = falaGPT + falaRotativa
+        variaveis.answer = falaLLM + falaRotativa
         return variaveis
 
     def secao240(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Usando no maximo 50 palavras de uma opnião sobre a escolha da pessoa.",
-                },
-            ],
-        )
+        self.printSecao(variaveis)
+        print("limite está em", variaveis.repetition)
+
+        value = self.verificaAlternativa(variaveis)
+        if variaveis.repetition < 2 and value is False:
+                return variaveis
+        else:
+            if value is True:
+                    print("entrou aqui?")
+                    #já que nao quer falar uma resposta valida, vamos seguir...
+                    print(f"variavel 1: {variaveis.input}\n")
+                    print(f"variavel 2: {variaveis.answer}\n")
+                    prompt = self.strategy.secao240_falou_alternativa(variaveis.input, variaveis.answer)
+            else:
+                print("entrou no else")
+                prompt = self.strategy.secao240_nao_falou_alternativa_continuar(variaveis.input, variaveis.answer)
+        messages=prompt
+        response = br.call(messages)
         resposta = [response]
-        falaGPT = self.enviaResultados(resposta, variaveis)
+        falaLLM = self.enviaResultados(resposta, variaveis)
         variaveis.section -= 30
         falaRotativa = self.secao225(variaveis)
-        variaveis.answer = falaGPT + falaRotativa
+        variaveis.answer = falaLLM + falaRotativa
         return variaveis
+
+    def verificaAlternativa(self, variaveis):
+        prompt = self.strategy.secao240_teste_verifica_alternativas(variaveis[1], variaveis[2])
+        contexto = variaveis[2]
+        print(f"variavel 1 (verificaAlternativa): {variaveis[1]}\n")
+        print(f"variavel 2 (verificaAlternativa): {variaveis[2]}\n")
+        print("dentro de verifica Alternativa")
+        print("**limite está em", variaveis.repetition)
+        messages=prompt
+        response = br.call(messages)
+        if (response.choices[0].message.content.upper().__contains__("FALSE")):
+            variaveis.repetition += 1
+            prompt = self.strategy.secao240NaoFalouAlternativa(variaveis[1], contexto)
+            messages=prompt
+            response = br.call(messages)
+            variaveis[2] = self.enviaResultados([response], variaveis)
+            return False
+        else:
+            # se falou a alternativa correta
+            return True
+        
 
     def secao260(self, variaveis: Variaveis):
         def retornaValor(status):
@@ -945,9 +853,9 @@ class Blab:
             )
 
             respostas = [response1]
-            falaGPT = self.enviaResultados(respostas, variaveis)
+            falaLLM = self.enviaResultados(respostas, variaveis)
             falaRotativa = self.secao225(variaveis)
-            variaveis.answer = falaGPT + falaRotativa
+            variaveis.answer = falaLLM + falaRotativa
             variaveis.section = retornaValor(variaveis.section)
             return variaveis
 
@@ -986,9 +894,9 @@ class Blab:
         )
 
         respostas = [response1]
-        falaGPT = self.enviaResultados(respostas, variaveis)
+        falaLLM = self.enviaResultados(respostas, variaveis)
         falaRotativa = self.secao225(variaveis)
-        variaveis.answer = falaGPT + falaRotativa
+        variaveis.answer = falaLLM + falaRotativa
         variaveis.section = variaveis.section - 70
         print(variaveis.section)
         return variaveis
@@ -1008,8 +916,8 @@ class Blab:
                 },
             ],
         )
-        falaGPT = self.enviaResultados([response1], variaveis)
-        variaveis.answer = falaGPT
+        falaLLM = self.enviaResultados([response1], variaveis)
+        variaveis.answer = falaLLM
         variaveis.section = 310
         return variaveis
 
@@ -1028,8 +936,8 @@ class Blab:
                 },
             ],
         )
-        falaGPT = self.enviaResultados([response1], variaveis)
-        variaveis.answer = falaGPT
+        falaLLM = self.enviaResultados([response1], variaveis)
+        variaveis.answer = falaLLM
         variaveis.section = 310
         return variaveis
 
