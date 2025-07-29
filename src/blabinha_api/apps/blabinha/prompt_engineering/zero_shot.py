@@ -702,6 +702,20 @@ class ZeroShot:
                 )
             }
         ]
+    
+    def getBonusFerramenta(self, variaveis_1, variaveis_2):
+        return [
+            {
+                "role": "system",
+                "content": (
+                    "Você é um robô chamado Blabinha e está conversando com uma criança. "
+                    "Verifique qual ferramenta a pessoa escolheu. E retorne somente qual é a ferramenta. "
+                    "Exemplo de saída: 'Tridente Mágico', 'Escudo protetor'"
+                )
+            },
+            {"role": "assistant", "content": variaveis_2},
+            {"role": "user", "content": variaveis_1}
+        ]
 
     def secao310QuantidadeEstrela(self, estrelas):
         print("secao310QuantidadeEstrela")

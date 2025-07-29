@@ -177,6 +177,9 @@ class SelfConsistency:
 
     def secao305(self):
         return ChainOfThought().secao305()
+    
+    def getBonusFerramenta(self, variaveis_1, variaveis_2):
+        return ChainOfThought().getBonusFerramenta(variaveis_1, variaveis_2)
 
     def secao310QuantidadeEstrela(self, estrelas):
         return ChainOfThought().secao310QuantidadeEstrela(estrelas)

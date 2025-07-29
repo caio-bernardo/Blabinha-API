@@ -285,6 +285,9 @@ class OneShot:
 
     def secao305(self):
         return ZeroShot().secao305()
+    
+    def getBonusFerramenta(self, variaveis_1, variaveis_2):
+        return ZeroShot().getBonusFerramenta(variaveis_1, variaveis_2)
 
     def secao310QuantidadeEstrela(self, estrelas):
         return ZeroShot().secao310QuantidadeEstrela(estrelas)

@@ -217,6 +217,9 @@ class StepByStep:
 
     def secao305(self):
         return FewShots().secao305()
+    
+    def getBonusFerramenta(self, variaveis_1, variaveis_2):
+        return FewShots().getBonusFerramenta(variaveis_1, variaveis_2)
 
     def secao310QuantidadeEstrela(self, estrelas):
         return FewShots().secao310QuantidadeEstrela(estrelas)

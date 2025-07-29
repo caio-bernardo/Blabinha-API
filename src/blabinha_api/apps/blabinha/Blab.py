@@ -902,21 +902,9 @@ class Blab:
     def get_bonus(self, result: list[Dialog]) -> str | None:
         for r in result:
             if 250 > r.section > 240:
-                response = self.client.chat.completions.create(
-                    model=self.modelo,
-                    messages=[
-                        {"role": "user", "content": r.input},
-                        {"role": "assistant", "content": r.answer},
-                        {
-                            "role": "system",
-                            "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                        },
-                        {
-                            "role": "system",
-                            "content": "Verifique qual ferramenta a pessoa escolheu. E retorne somente o qual é a ferramenta. Exemplo de saida: 'Tridente Mágico', 'Escudo protetor'",
-                        },
-                    ],
-                )
+                prompt = self.strategy.getBonusFerramenta(r.input, r.answer)
+                messages=prompt
+                response = br.call(messages)
                 return response.choices[0].message.content
         return None
 

@@ -192,6 +192,9 @@ class ChainOfThought:
 
     def secao305(self):
         return StepByStep().secao305()
+    
+    def getBonusFerramenta(self, variaveis_1, variaveis_2):
+        return StepByStep().getBonusFerramenta(variaveis_1, variaveis_2)
 
     def secao310QuantidadeEstrela(self, estrelas):
         return StepByStep().secao310QuantidadeEstrela(estrelas)
