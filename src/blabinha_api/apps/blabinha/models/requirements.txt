@@ -1,0 +1,13 @@
+transformers
+accelerate
+optimum
+langchain
+langchain-google-genai
+langchain-openai
+
+#langchain                    0.3.26
+#langchain-core               0.3.66
+#langchain-google-genai       2.1.5
+#langchain-openai             0.3.25
+#langchain-text-splitters     0.3.8
+

@@ -7,6 +7,7 @@ from openai import OpenAI
 from blabinha_api.apps.dialogs.models import Dialog
 from blabinha_api.apps.chats.models import Chat
 from blabinha_api.apps.chats.schemas import StrategyEnum
+from blabinha_api.apps.blabinha import brain as br
 
 if TYPE_CHECKING:
     from apps.dialogs.services import DialogService
@@ -71,13 +72,18 @@ class Variaveis:
 class Blab:
     def __init__(self, api_key: str, chat: Chat, dialog_service: 'DialogService'):
         self.chat_id = chat.id
-        self.modelo = chat.model
+        self.modelo = chat.model.value
         self.strategy = PromptStrategy(chat.strategy).get_strategy()
         print("Estratégia selecionada:", self.strategy)
 
         self.client = OpenAI(api_key=api_key)
 
         self.dialog_service = dialog_service
+
+        br.select_model(self.modelo)
+        print(f"Modelo '{self.modelo}' selecionado.\n")
+        modeloLLM = self.modelo
+        print(f"Modelo LLM selecionado: {modeloLLM}")
 
     def get_part2_dialogs(self) -> list[Dialog]:
         return self.dialog_service.get_all_part_two(self.chat_id)
@@ -186,38 +192,21 @@ class Blab:
 
     # Verifica se o nome da pessoa foi dito
     def verificaNome(self, variaveis: Variaveis):
+        prompt = self.strategy.verifica_nome(variaveis.input)
         print(variaveis.input)
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você está verificando se o usuário mencionou seu nome. Responda TRUE se o usuário mencionou seu nome ou como deseja ser chamado, e FALSE caso contrário.",
-                },
-                {
-                    "role": "system",
-                    "content": "Exemplos: User:'Teodoro' asssistant: 'TRUE', User:'Não quero' asssistant:'FALSE', User:'Me chamo Pedro' asssistant:'TRUE', User:'Adoro poneis' assistant: 'FALSE'"
-                    + " User:'Bibi' assistant:'TRUE', User:'Me chame de Gustavo' asssistant:'TRUE', User:'Que legal você ser um robô' assistant: 'FALSE',  User:'Meu nome é  Claudio' asssistant:'TRUE', User:'Pode me chamar de Teodoro' asssistant:'TRUE', User:'Adoro nomes' assistant: 'FALSE'",
-                },
-                {"role": "user", "content": variaveis.input},
-            ],
-        )
+
+        messages=prompt
+        response = br.call(messages)
+        print(response)
+     
         assert response.choices[0].message.content is not None
         if response.choices[0].message.content.upper().__contains__("FALSE"):
             self.printVerificador("Falou nome", " A pessoa NÃO falou o nome!")
             if variaveis.section != 100:
-                response = self.client.chat.completions.create(
-                    model=self.modelo,
-                    messages=[
-                        {"role": "assistant", "content": variaveis.answer},
-                        {"role": "user", "content": variaveis.input},
-                        {
-                            "role": "system",
-                            "content": "Responda explicando que não entedeu como a pessoa se chama e então diga que ela precisa explicar como chama-la.  Use no maximo 100 palavras",
-                        },
-                    ],
-                )
-
+                prompt = self.strategy.nao_falou_nome(variaveis.input, variaveis.answer)
+                messages = prompt
+                response = br.call(messages=prompt)
+                print(response)
                 variaveis.answer = self.enviaResultados([response], variaveis)
                 return False
 
@@ -245,35 +234,20 @@ class Blab:
 
     # Verifica se a pessoa pediu para repetir
     def verificaRepete(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                # Responda, Sim, se a pessoa tiver
-                {
-                    "role": "system",
-                    "content": "Responda TRUE se o usuario pediu para repetir, caso contrario, responda FALSE",
-                },
-            ],
-        )
+        prompt = self.strategy.verifica_repete(variaveis.input, variaveis.answer)
+        messages = prompt
+        response = br.call(messages)
+        
         assert response.choices[0].message.content is not None
         if response.choices[0].message.content.upper().__contains__("TRUE"):
             self.printVerificador(
                 "Repete Fala",
                 "A pessoa pediu para repetir ou não entendeu o que foi dito!",
             )
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {"role": "system", "content": variaveis.answer},
-                    {
-                        "role": "system",
-                        "content": "Explique que vai repetir o que tinha dito. "
-                        + "Termine reformulando a frase acima sem perder o significado",
-                    },
-                ],
-            )
+            prompt = self.strategy.repete(variaveis.answer)
+            messages = prompt
+            response = br.call(messages)
+
             falaGPT = self.enviaResultados([response], variaveis)
             variaveis.answer = falaGPT
             return True
@@ -287,21 +261,10 @@ class Blab:
 
     # Verifica se a pessoa terminou o desafio
     def verificaDesafio(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Responda TRUE se a pessoa tiver aceito o desafio e FALSE se tiver negado ",
-                },
-                {
-                    "role": "system",
-                    "content": "Exemplos: User:'Aceito o desafio' asssistant: 'TRUE', User:'Não quero' asssistant:'FALSE', User:'Topo participar' asssistant:'TRUE', User:'Não topo' assistant: 'FALSE'",
-                },
-            ],
-        )
+        prompt = self.strategy.verifica_desafio(variaveis.input, variaveis.answer)
+        messages = prompt
+        response = br.call(messages)
+
 
         falaGPT = response.choices[0].message.content
         self.printVerificador(
@@ -314,37 +277,16 @@ class Blab:
 
     # Verifica se a pessoa entendeu as regras
     def verificaRegras(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                # Responda, Sim, se a pessoa tiver
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Responda TRUE se a pessoa afirmar ou dizer que entendeu e FALSE ela negar ou dizer que não entendeu",
-                },
-            ],
-        )
+        prompt = self.strategy.verifica_regras(variaveis.input, variaveis.answer)
+        messages = prompt
+        response = br.call(messages)
 
         assert response.choices[0].message.content is not None
         if response.choices[0].message.content.upper().__contains__("FALSE"):
             self.printVerificador("Verifica Regras", "A pessoa não entendeu as regras!")
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Diga que vai repetir e termine reformulando a frase abaixo mantendo o mesmo significado e para parecer que está falando com uma criança",
-                    },
-                    {
-                        "role": "user",
-                        "content": "'As regras do desafio são as seguintes: Primeiro é preciso fazer perguntas para mim (Blabinha), essas perguntas tem que que ser sobre a o assunto "
-                        + "Amazônia azul. Quanto mais você manter no assunto mais pontos vai ganhar. Caso não saiba sobre o que falar pode pedir dica de algum assunto."
-                        + "Além disso você pode pedir para terminar e sair a hora que quiser'",
-                    },
-                ],
-            )
+            prompt = self.strategy.repete_verifica_regras()
+            messages = prompt
+            response = br.call(messages)
             variaveis.answer = self.enviaResultados([response], variaveis)
             return False
         else:
@@ -368,35 +310,17 @@ class Blab:
 
     # Verifica se a pessoa pediu dica ou não
     def verificaDica(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                # Responda, Sim, se a pessoa tiveawait r
-                {
-                    "role": "system",
-                    "content": "Responda TRUE se a pessoa pediu dica e FALSE se não pediu",
-                },
-                {"role": "user", "content": variaveis.input},
-            ],
-        )
+        prompt = self.strategy.verifica_dica(variaveis.input)
+        messages = prompt
+        response = br.call(messages)
 
         assert response.choices[0].message.content is not None
 
         if response.choices[0].message.content.upper().__contains__("TRUE"):
             self.printVerificador("Verifica Dica", "A pessoa pediu alguma dica!")
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Amazônia Azul é a região que compreende a superfície do mar, águas sobrejacentes ao leito do mar, solo e subsolo marinhos contidos na extensão atlântica que se projeta a partir do litoral até o limite exterior da Plataforma Continental brasileira",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Primeiro diga que vai dar dica de assuntos sobre a Amazônia Azul e termine enumerando 4 possiveis assuntos que estejam relacionados a Amazônia Azul.",
-                    },
-                ],
-            )
+            prompt = self.strategy.pediu_dica()
+            messages = prompt
+            response = br.call(messages)
             falaGPT = self.enviaResultados([response], variaveis)
             variaveis.answer = falaGPT
             return True
@@ -407,36 +331,17 @@ class Blab:
 
     # Verifica se a pessoa pediu para terminar
     def verificaTerminar(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                # Responda, Sim, se a pessoa tiver
-                {
-                    "role": "system",
-                    "content": "Responda TRUE se a pessoa pediu para terminar ou acabar e FALSE se não pediu",
-                },
-                {"role": "user", "content": variaveis.input},
-            ],
-        )
+        prompt = self.strategy.verifica_terminar(variaveis.input)
+        messages = prompt
+        response = br.call(messages)
 
         assert response.choices[0].message.content is not None
 
         if response.choices[0].message.content.upper().__contains__("TRUE"):
             self.printVerificador("Verifica Termino", "A pessoa pediu para terminar!")
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 100 palavras",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Pergunte se a pessoa realmente quer terminar. Diga que falta pouco para ela concluir e criar o herói",
-                    },
-                    {"role": "user", "content": variaveis.input},
-                ],
-            )
+            prompt = self.strategy.verifica_realmente_terminar(variaveis.input)
+            messages = prompt
+            response = br.call(messages)
             falaGPT = self.enviaResultados([response], variaveis)
             variaveis.answer = falaGPT
             variaveis.section += 50
@@ -449,37 +354,17 @@ class Blab:
             return False
 
     def verificaTerminar2(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                # Responda, Sim, se a pessoa tiver
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Responda TRUE se a pessoa(user) pediu para terminar ou acabar e FALSE se não pediu",
-                },
-            ],
-        )
+        prompt = self.strategy.verifica_terminar2(variaveis.input, variaveis.answer)
+        messages = prompt
+        response = br.call(messages)
 
         assert response.choices[0].message.content is not None
 
         if response.choices[0].message.content.upper().__contains__("TRUE"):
             self.printVerificador("Verifica Termino2", "A pessoa pediu para terminar!")
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 100 palavras",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Pergunte se a pessoa realmente quer terminar. Diga que falta pouco para ela concluir e criar o herói",
-                    },
-                    {"role": "user", "content": variaveis.input},
-                ],
-            )
+            prompt = self.strategy.verifica_realmente_terminar(variaveis.input)
+            messages = prompt
+            response = br.call(messages)
             falaGPT = self.enviaResultados([response], variaveis)
             variaveis.answer = falaGPT
             variaveis.section += 10
@@ -495,20 +380,10 @@ class Blab:
         frase = str.lower(variaveis.input)
         possibilidades = ["criar heroi", "criar héroi", "parte 3", "parte 03"]
 
+        prompt = self.strategy.verificaParte03()
         if frase in possibilidades:
-            response1 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Pergunte se a pessoa(criança) realmente quer ir para parte da criação de herói. Termine dizendo que quanto mais ela interagir mais forte o herói será.",
-                    },
-                ],
-            )
+            messages = prompt
+            response1 = br.call(messages)
             falaGPT = self.enviaResultados([response1], variaveis)
             variaveis.answer = falaGPT
             variaveis.section += 70
@@ -521,152 +396,97 @@ class Blab:
             return False
 
     # Verifica se a pessoa falou sobre o contexto da amazônia Azul
-    def verificaContexto(self, variaveis: Variaveis):
+    def verificaContexto(self, variaveis):
+
+        #tirar answer
+        prompt = self.strategy.verifica_contexto(variaveis.input, variaveis.answer)
+
         contexto = (
             "Amazônia Azul é a região que compreende a superfície do mar, águas sobrejacentes ao leito do mar, solo e subsolo marinhos contidos na extensão atlântica que se projeta a partir do litoral até o limite exterior da Plataforma Continental brasileira."
-            "Podemos resumir como tudo que envolve o Mar Brasileiro como animais, locais, navios,etc"
-        )
+            "Podemos resumir como tudo que envolve o Mar Brasileiro como animais, locais, navios, etc")
+        
+        messages=prompt
+        response = br.call(messages)
 
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": " Responda TRUE se o user tiver feito uma pergunta dentro do contexto da Amazônia Azul. Para decidir se uma pergunta está dentro do contexto da Amazônia azul existem 2 possibilidades:"
-                    + "1 - É uma pergunta sobre o Brasil e sobre o mar, ou seja peixes, ilhas, barcos, o propio mar, etc. 2 - É uma pergunta diretamente sobre a Amazônia Azul, ou seja tem Amazônia Azul na pergunta. Responda FALSE se for sobre outro contexto",
-                },
-            ],
-        )
+        print("Resposta do verifica contexto: \n", response.choices[0].message.content.upper())
 
-        assert response.choices[0].message.content is not None
-
-        if response.choices[0].message.content.upper().__contains__("FALSE"):
-            self.printVerificador("Verifica Contexto", "NÃO está dentro do contexto")
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "system",
-                        "content": "Não responda o User, explique para ele que o assunto que ele falou não está relacionado com a Amazônia azul. Use no maximo 30 palavras",
-                    },
-                ],
-            )
-            response1 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {"role": "system", "content": contexto},
-                    {
-                        "role": "system",
-                        "content": "Explique que o user deve falar sobre Amazônia Azul e de 4 exemplos de assuntos que ele pode fala que sejam sobre a Amazônia Azul. Use no máximo 150 palavras",
-                    },
-                ],
-            )
-            respostas = [response, response1]
-            falaGPT = self.enviaResultados(respostas, variaveis)
-            falaRotativa = self.secao225(variaveis)
-            variaveis.answer = falaGPT + falaRotativa
-
-            return False
+        if (response.choices[0].message.content.upper().__contains__("TRUE")):
+            self.printVerificador("Verifica Contexto", "Falou sobre Amazônia Azul")
+            print("caiu aqui no verifica contexto**")
+            return True
 
         else:
-            self.printVerificador("Verifica Contexto", "Falou sobre Amazônia Azul")
-            return True
+            self.printVerificador("Verifica Contexto", "NÃO está dentro do contexto")
+
+            prompt = self.strategy.verifica_nao_contexto(variaveis.input)
+            messages=prompt
+            response = br.call(messages)
+
+            prompt = self.strategy.verifica_nao_contexto_2(contexto)
+            messages=prompt
+            response1 = br.call(messages)
+
+            respostas = [response,response1]
+            falaGPT = self.enviaResultados(respostas, variaveis)    
+            falaRotativa = self.secao225(variaveis)
+            variaveis[2] = falaGPT + falaRotativa  
+
+            return False
 
     # Verifica se a pessoa falou alguma das palavras chaves
     def verificaBonus(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Você é uma analista de textos, e precisa ver se o texto fala de alguma forma sobre 'Governo'. Retorne como saida TRUE se for dito e FALSE se não for",
-                },
-            ],
-        )
-
+        prompt = self.strategy.verificaBonus(variaveis.input)
+        messages = prompt
+        response = br.call(messages)
+        
         falaGPT = response.choices[0].message.content
 
         assert falaGPT is not None
 
-        if (falaGPT.upper()).__contains__("FALSE"):
-            self.printVerificador("Verifica Bonus", "Caiu no caso Bonus")
+        if "FALSE" in falaGPT.upper():
+            self.printVerificador("Verifica Bonus", "Não caiu no caso Bonus")
             return False
 
-        else:
-            self.printVerificador("Verifica Bonus", "Não caiu no caso Bonus")
+        elif "TRUE" in falaGPT.upper():
+            self.printVerificador("Verifica Bonus", "Caiu no caso Bonus")
             return True
 
     def repetiraCriação(self, variaveis: Variaveis):
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Responda TRUE se a pessoa quiser ir para criação e FALSE se não quiser",
-                },
-            ],
-        )
+        prompt = self.strategy.repetiraCriação(variaveis.input, variaveis.answer)
+        messages = prompt
+        response = br.call(messages)
+
         falaGPT = response.choices[0].message.content
 
         assert falaGPT is not None
 
-        if (falaGPT.upper()).__contains__("FALSE"):
-            self.printVerificador("Verifica Bonus", "Caiu no caso Bonus")
+        if "FALSE" in falaGPT.upper():
+            self.printVerificador("Verifica Bonus - Heroi", "Não caiu no caso Bonus")
             return False
 
         else:
-            self.printVerificador("Verifica Bonus", "Não caiu no caso Bonus")
+            self.printVerificador("Verifica Bonus - Heroi", "Caiu no caso Bonus")
             return True
 
     def secao100(self, variaveis: Variaveis):
+        prompt = self.strategy.secao100EscutouFalar(variaveis.input)
+
         if self.casoTeste(variaveis) is True:
             self.secao300(variaveis)
             return variaveis
 
         if self.verificaNome(variaveis) is True:
             print("caiu aqui")
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Seu objetivo é falar sobre a Amazônia Azul. Evite gerar perguntas. Use no máximo 100 palavras",
-                    },
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "system",
-                        "content": "Siga somente os passos para gerar o texto: Passo 1 - Reaja ao que a pessoa falou  Passo 2 - Exlique o que você é"
-                        + "Passo 3 - Por ultimo pergunte se pessoa já ouviu falar da Amazônia Azul.",
-                    },
-                ],
-            )
+            messages = prompt
+            response = br.call(messages)
             respostas = [response]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
             variaveis.section = 120
             variaveis.username = self.extraiNome(variaveis)
             return variaveis
 
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Seu objetivo é falar sobre a Amazônia Azul. Evite gerar perguntas. Use no máximo 100 palavras",
-                },
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Siga somente os passos para gerar o texto: Passo 1 - Reaja ao que a pessoa falou  Passo 2 - Exlique o que você é"
-                    + "Passo 3 - Por ultimo pergunte como pode chamar a pessoa.",
-                },
-            ],
-        )
+        prompt = self.strategy.secao100VerificaNome(variaveis.input)
+        response = br.call(messages=prompt)
         respostas = [response]
         variaveis.answer = self.enviaResultados(respostas, variaveis)
         variaveis.section = 110
@@ -684,44 +504,18 @@ class Blab:
             else:
                 variaveis.username = self.extraiNome(variaveis)
         else:
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {"role": "assistant", "content": variaveis.answer},
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança."
-                        + "Evite gerar perguntas. Use no máximo 100 palavras.",
-                    },
-                    {
-                        "role": "system",
-                        "content": "Diga que já que ela não quer falar o nome vamos seguir em frente e por ultimo pergunte se ela já ouviu fala na Amazônia Azul",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao110NaoFalouNome(variaveis.input, variaveis.answer)
+            messages=prompt
+            response = br.call(messages)
             respostas = [response]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
             variaveis.section = 120
             variaveis.repetition = 0
             return variaveis
 
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança."
-                    + "Evite gerar perguntas. Use no máximo 100 palavras.",
-                },
-                {
-                    "role": "system",
-                    "content": "Para responder primeiro demonstre contentamento em conhecer a pessoa e por ultimo pergunte se ela já ouviu fala sobre a Amazônia Azul",
-                },
-            ],
-        )
+        prompt = self.strategy.secao110EscutouFalar(variaveis.input, variaveis.answer)
+        messages = prompt
+        response = br.call(messages)
         respostas = [response]
         variaveis.answer = self.enviaResultados(respostas, variaveis)
         variaveis.section = 120
@@ -735,26 +529,10 @@ class Blab:
 
         if self.verificaRepete(variaveis) is True:
             return variaveis
-
-        response = self.client.chat.completions.create(
-            model=self.modelo,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 150 palavras.",
-                },
-                {
-                    "role": "system",
-                    "content": "Siga somente os passos para gerar o texto:"
-                    + "Passo 1- Se a pessoa já souber sobre amazônia azul parabenize ela, se não diga algo reconfortante."
-                    + "Passo 2- Explique brevemente que o desafio consiste em criar um super-herói e para isso vai ser"
-                    + " preciso aprender sobre a amazônia azul"
-                    + "Passo 3 - CONVIDE ela para participar do desafio",
-                },
-                {"role": "assistant", "content": variaveis.answer},
-                {"role": "user", "content": variaveis.input},
-            ],
-        )
+        
+        prompt = self.strategy.secao120(variaveis.input, variaveis.answer)
+        messages = prompt
+        response = br.call(messages)
         respostas = [response]
         variaveis.answer = self.enviaResultados(respostas, variaveis)
         variaveis.section = 130
@@ -766,21 +544,10 @@ class Blab:
             return variaveis
 
         if self.verificaDesafio(variaveis) is False:
-            response = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 100 palavras",
-                    },
-                    {"role": "assistant", "content": variaveis.answer},
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "system",
-                        "content": "Pergunte se realmente a pessoa não está querendo participar do desafio",
-                    },
-                ],
-            )
+
+            prompt = self.strategy.secao130NaoQuerParticipar(variaveis.input, variaveis.answer)
+            messages=prompt
+            response = br.call(messages)
 
             respostas = [response]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
@@ -789,50 +556,16 @@ class Blab:
             return variaveis
 
         else:
-            response0 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Evite gerar perguntas. Explique o que é o desafio refazendo a frase abaixo e mantendo o mesmo significado",
-                    },
-                    {
-                        "role": "system",
-                        "content": "A criança fazer perguntas sobre a Amazônia Azul para você (Blabinha) de forma a criar um héroi. Quanto mais perguntas forem feitas mais forte o héroi será.",
-                    },
-                ],
-            )
-            response1 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "assistant",
-                        "content": response0.choices[0].message.content,
-                    },
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Evite gerar perguntas. Complemente a explicação do desafio refazendo a frase abaixo  e mantendo o mesmo significado",
-                    },
-                    {
-                        "role": "system",
-                        "content": "As regras do desafio são as seguintes: Primeiro explique que acontecem no máximo 7 turnos. Somente perguntas que a Blabinha entender como Amazônia Azul contam como turnos. Você (criança) pode pedir dicas sobre"
-                        + "possiveis assuntos da Amazônia Azul. Além disso pode pedir para terminar, ou seja acabar o jogo. Ou pedir para criar o héroi em algum momento da interação.Termine dizendo que esses três ultimos casos não contam como turno",
-                    },
-                ],
-            )
-            response2 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "assistant",
-                        "content": response1.choices[0].message.content,
-                    },
-                    {
-                        "role": "system",
-                        "content": "Termine perguntando se a pessoa entendeu as regras. Use no maximo 40 palavras",
-                    },
-                ],
-            )
+            prompt = self.strategy.secao130Instrucao()
+            messages=prompt
+            response0 = br.call(messages)
+            prompt = self.strategy.secao130RegrasDesafio(response0.choices[0].message.content)
+            messages=prompt
+            response1 = br.call(messages)
+
+            prompt = self.strategy.secao130EntendeuRegras(response1.choices[0].message.content)
+            messages=prompt
+            response2 = br.call(messages)
 
             respostas = [response1, response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
@@ -841,24 +574,12 @@ class Blab:
             return variaveis
 
     def secao140(self, variaveis: Variaveis):
+        prompt = self.strategy.secao140ConvencerContinuar(variaveis.input, variaveis.answer)
         result = self.verificaDesafio(variaveis)
 
         if result is False and variaveis.section < 141:
-            response2 = self.client.chat.completions.create(
-                model=self.modelo,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "Você é um robô chamado Blabinha e está conversando com uma criança. Use no máximo 100 palavras",
-                    },
-                    {"role": "assistant", "content": variaveis.answer},
-                    {"role": "user", "content": variaveis.input},
-                    {
-                        "role": "system",
-                        "content": "Tente convencer a ela não terminar e participar do desafio",
-                    },
-                ],
-            )
+            messages=prompt
+            response2 = br.call(messages)
             respostas = [response2]
             variaveis.answer = self.enviaResultados(respostas, variaveis)
             variaveis.section = variaveis.section + 1
