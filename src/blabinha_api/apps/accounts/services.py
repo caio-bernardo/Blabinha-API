@@ -1,5 +1,6 @@
 from pydantic import SecretStr
 from sqlmodel import Session, select
+from sqlalchemy.exc import IntegrityError
 
 from .models import User
 from .schemas import UserCreatePayload
@@ -29,10 +30,16 @@ class UserService:
             email=payload.email,
             hashed_password=TokenService().get_password_hash(payload.password).get_secret_value()
         )
-        self.session.add(user)
-        self.session.commit()
-        self.session.refresh(user)
-        return user
+
+        try:
+
+            self.session.add(user)
+            self.session.commit()
+            self.session.refresh(user)
+            return user
+        except IntegrityError:
+            self.session.rollback()
+            raise ValueError("User with this unique identifier already exists")
 
     async def read_user(self, username: str) -> User | None:
         user = self.session.exec(select(User).where(User.email == username)).first()

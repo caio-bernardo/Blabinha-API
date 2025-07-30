@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from blabinha_api.apps.chats.schemas import ChatPublic
 
@@ -31,5 +31,9 @@ async def delete_own_user(
 @router.post("/register", response_model=UserPublicWithChats)
 async def create_user(payload: UserCreatePayload, userservice: Annotated[UserService, Depends(get_user_service)]):
     """Cria um novo usuário"""
-    user = await userservice.create_user(payload)
-    return user
+    try:
+
+        user = await userservice.create_user(payload)
+        return user
+    except ValueError as e:
+        raise HTTPException(400, str(e))
