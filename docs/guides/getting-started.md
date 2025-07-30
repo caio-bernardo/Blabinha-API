@@ -8,7 +8,7 @@ Antes de começar garante que esses sistemas estão instalados em sua máquina:
 
 - **Python 3.12 ou maior**
 - **Gerenciador de pacotes UV**:
-Você instalá-lo através do `pip`:
+Você instala ele através do `pip`:
 ```sh
 pip install uv
 ```
@@ -50,8 +50,73 @@ GEMINI_API_KEY=sua-outra-chave-super-secreta
 
 > Se estiver no linux o comando `openssl rand -hex 32` lhe dará uma sequência hexadecimal aleatória que serve como uma boa senha de segurança.
 
+> Se estiver no windows o comando `powershell -Command " -join ((1..32) | ForEach-Object { '{0:x2}' -f (Get-Random -Maximum 256) })"` fará o mesmo.
+
 4. **(Opcional) Entre no ambiente virtual:**
 Desse ponto em diante usaremos o prefixo `uv run` para executar migrar e rodar nossa aplicação, isso serve para rodar nossos scripts python dentro do ambiente virtual. Porém, você também pode iniciar o ambiente virtual dentro da sua shell: `source .venv/bin/activate`.
+
+**Windows**
+
+No Windows, para ativar o ambiente virtual Python, use um dos comandos abaixo no terminal, dependendo do shell:
+
+Prompt de Comando (cmd): `.venv\Scripts\activate`
+
+PowerShell: `.venv\Scripts\Activate.ps1`
+
+Depois de ativar, todos os comandos Python serão executados dentro do ambiente virtual.
+
+## Requisitos específicos da pasta `models`:
+```bash
+pip install --upgrade pip
+```
+```bash
+pip install -r src\blabinha_api\apps\blabinha\models\requirements.txt
+```
+se for usar o Llama, entre nesse site e solicite acesso ao repositório:
+https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct
+
+#### ⚠️ Instalação do PyTorch
+
+> **Observação:** O PyTorch **não** está incluído no `requirements.txt`, pois a instalação depende da sua GPU/CPU e da versão do CUDA que você possui.
+```bash
+# 1. por garantia execute esse comando
+pip uninstall -y torch torchvision torchaudio
+
+# 2. Identifique a versão do CUDA suportada pela sua GPU:
+nvcc --version
+# (ou consulte o site do fabricante da sua placa)
+Para baixar o CUDA Toolkit:
+
+Acesse o site oficial da NVIDIA:
+https://developer.nvidia.com/cuda-downloads
+
+Selecione seu sistema operacional (Windows, Linux, etc.), arquitetura, versão e instalador.
+
+Baixe e execute o instalador recomendado para seu sistema.
+
+Após instalar, reinicie o computador.
+
+Para verificar se está instalado, abra o terminal e digite:
+`nvcc --version`
+
+
+Instale a versão correta de acordo com seu sistema diretamente do [site oficial do PyTorch](https://pytorch.org/get-started/locally/) ou com um dos comandos abaixo:
+
+**CPU-only (mais seguro para evitar problemas):**
+
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+```
+
+**Com suporte a GPU (CUDA 11.8, por exemplo):**
+
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cu118
+```
+
+---
+
+
 
 ## Setup da base de dados
 
