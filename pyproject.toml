@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.15.2",
+    "accelerate",
     "bcrypt>=4.3.0",
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.115.12",
@@ -16,6 +17,14 @@ dependencies = [
     "sqlmodel>=0.0.24",
     "tzdata>=2025.2",
     "uvicorn>=0.34.0",
+    "transformers",
+    "langchain",
+    "langchain-google-genai",
+    "langchain-openai",
+    "langchain-core",
+    "langchain-google-genai",
+    "langchain-openai",
+    "langchain-text-splitters",
 ]
 
 [dependency-groups]
