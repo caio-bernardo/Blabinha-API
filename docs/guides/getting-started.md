@@ -67,16 +67,6 @@ PowerShell: `.venv\Scripts\Activate.ps1`
 
 Depois de ativar, todos os comandos Python serão executados dentro do ambiente virtual.
 
-## Requisitos específicos da pasta `models`:
-```bash
-pip install --upgrade pip
-```
-```bash
-pip install -r src\blabinha_api\apps\blabinha\models\requirements.txt
-```
-se for usar o Llama, entre nesse site e solicite acesso ao repositório:
-https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct
-
 #### ⚠️ Instalação do PyTorch
 
 > **Observação:** O PyTorch **não** está incluído no `requirements.txt`, pois a instalação depende da sua GPU/CPU e da versão do CUDA que você possui.
