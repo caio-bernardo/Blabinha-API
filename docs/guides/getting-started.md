@@ -69,7 +69,7 @@ Depois de ativar, todos os comandos Python serão executados dentro do ambiente 
 
 #### ⚠️ Instalação do PyTorch
 
-> **Observação:** O PyTorch **não** está incluído no `requirements.txt`, pois a instalação depende da sua GPU/CPU e da versão do CUDA que você possui.
+> **Observação:** O PyTorch **não** está incluído no `uv sync`, pois a instalação depende da sua GPU/CPU e da versão do CUDA que você possui.
 ```bash
 # 1. por garantia execute esses comandos:
 uv pip uninstall torch torchvision torchaudio 
