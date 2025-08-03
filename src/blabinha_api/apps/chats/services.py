@@ -8,6 +8,7 @@ from blabinha_api.apps.accounts.models import User
 from .models import Chat
 from .schemas import ChatCreate, ChatUpdate
 from uuid import UUID
+from blabinha_api.apps.blabinha import brain as br
 
 
 class ChatService:
@@ -73,9 +74,24 @@ class ChatService:
         self.session.delete(chat)
         self.session.commit()
 
+    
+    async def enviaResultados(self, respostas) -> List[str]:
+        perguntas = []
+        for r in respostas:
+            content = r.choices[0].message.content
+            if content:
+                for linha in content.strip().split("\n"):
+                    linha = linha.strip()
+                    perguntas.append(linha)
+        return perguntas
+
+
+        
+        # Retorno a resposta do GPT formatada
+        return falaLLM_total
+
     async def get_suggestions(self, id: uuid.UUID, user: User, api_key: str) -> List[str]:
         chat = await self.get_one_from(user, id)
-        client = OpenAI(api_key=api_key)
         historico = ""
         for dialog in chat.dialogs:
             historico += f"Usuário: {dialog.input}\nAssistente: {dialog.answer}\n"
@@ -83,7 +99,7 @@ class ChatService:
         prompt = (
             "Você é um assistente inteligente especializado na Amazônia Azul. "
             "Com base na conversa abaixo, gere uma lista com 4 perguntas (nem mais, nem menos) curtas, "
-            "com no máximo 45 caracteres, que ainda não foram feitas. "
+            "com no máximo 45 caracteres (contados com espaços e pontuação), que ainda não foram feitas. Exemplo de pergunta curta: O que é Amazônia Azul?\n\n"
             "As perguntas devem ser direcionadas ao assistente da conversa passada, "
             "estar dentro do tema da Amazônia Azul, e ser relevantes ao contexto da conversa. "
             "Evite repetir perguntas já feitas anteriormente. "
@@ -92,18 +108,11 @@ class ChatService:
             "Sugestões:"
         )
 
-        response = client.chat.completions.create(
-            model=chat.model,
-            messages=[
-                {"role": "system", "content": "Você é um assistente que sugere perguntas curtas baseadas em um diálogo."},
-                {"role": "user", "content": prompt},
-            ],
-        )
+        br.select_model(chat.model or "gpt-3.5-turbo")
+        response = br.call([{"role": "user", "content": prompt}])
+        perguntas = await self.enviaResultados([response])  # passa como lista
 
-        content = response.choices[0].message.content
-        if content:
-            perguntas = [linha.strip() for linha in content.strip().split("\n") if linha.strip()]
-            perguntas = [p for p in perguntas if len(p) <= 45]
-            return perguntas
+        print("Perguntas geradas:", perguntas)
+        return perguntas 
 
-        return []
+

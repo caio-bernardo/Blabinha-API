@@ -427,7 +427,7 @@ class Blab:
             respostas = [response,response1]
             falaLLM = self.enviaResultados(respostas, variaveis)    
             falaRotativa = self.secao225(variaveis)
-            variaveis[2] = falaLLM + falaRotativa  
+            variaveis.answer = falaLLM + falaRotativa  
 
             return False
 
@@ -720,7 +720,7 @@ class Blab:
 
     def secao230(self, variaveis: Variaveis):
         print("entrou aqui no 230")
-        print("variaveis[0] antes de atualizada no 230", variaveis[0])
+        # print("variaveis[0] antes de atualizada no 230", variaveis[0])
         prompt = self.strategy.secao230(variaveis.input, variaveis.answer)
         messages=prompt
         response = br.call(messages)
@@ -916,19 +916,18 @@ class Blab:
 
         for t in results:
             for x in topicos:
-                response = self.client.chat.completions.create(
-                    model=self.modelo,
-                    messages=[
-                        {"role": "user", "content": t.input},
-                        {"role": "assistant", "content": t.answer},
-                        {
-                            "role": "system",
-                            "content": "Leia a conversa e veja se ela está relacionada ao tópico "
-                            + x
-                            + "Para gerar a saida retorne TRUE se estiver relacionado e FALSE se não tiver",
-                        },
-                    ],
-                )
+                messages=[
+                    {"role": "user", "content": t.input},
+                    {"role": "assistant", "content": t.answer},
+                    {
+                        "role": "system",
+                        "content": "Leia a conversa e veja se ela está relacionada ao tópico "
+                        + x
+                        + "Para gerar a saida retorne TRUE se estiver relacionado e FALSE se não tiver",
+                    },
+                ]
+                response =  br.call(messages)
+                  
                 if response.choices[0].message.content == "TRUE":
                     lista.append(x)
 
