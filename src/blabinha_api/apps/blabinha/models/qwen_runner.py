@@ -2,7 +2,12 @@ import time
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from typing import Any, Dict, List
 from types import SimpleNamespace
-device = "cuda" # the device to load the model onto
+import torch
+try:
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+except AssertionError:
+    device = "cpu"
+
 
 model = AutoModelForCausalLM.from_pretrained(
     "Qwen/Qwen2.5-3B-Instruct",

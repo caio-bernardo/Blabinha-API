@@ -3,6 +3,11 @@ import torch
 import time
 from typing import Any, Dict, List
 from types import SimpleNamespace
+try:
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+except AssertionError:
+    device = "cpu"
+# Define the model ID for Llama
 
 model_id = "meta-llama/Llama-3.2-3B-Instruct"
 

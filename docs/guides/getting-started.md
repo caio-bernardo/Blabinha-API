@@ -46,6 +46,8 @@ REFRESH_TOKEN_EXPIRE_MINUTES=2880
 OPENAI_API_KEY=sua-chave-super-secreta
 GEMINI_API_KEY=sua-outra-chave-super-secreta
 ```
+ > NOTA: Se você for usar o llama, irá precisar solicitar autorização da Meta, portanto, entre nesse link e aceite os termos: https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct 
+
 **Recomenda-se**: não exponha essas chaves e secredos!
 
 > Se estiver no linux o comando `openssl rand -hex 32` lhe dará uma sequência hexadecimal aleatória que serve como uma boa senha de segurança.
@@ -65,22 +67,14 @@ PowerShell: `.venv\Scripts\Activate.ps1`
 
 Depois de ativar, todos os comandos Python serão executados dentro do ambiente virtual.
 
-## Requisitos específicos da pasta `models`:
-```bash
-pip install --upgrade pip
-```
-```bash
-pip install -r src\blabinha_api\apps\blabinha\models\requirements.txt
-```
-se for usar o Llama, entre nesse site e solicite acesso ao repositório:
-https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct
-
 #### ⚠️ Instalação do PyTorch
 
-> **Observação:** O PyTorch **não** está incluído no `requirements.txt`, pois a instalação depende da sua GPU/CPU e da versão do CUDA que você possui.
+> **Observação:** O PyTorch **não** está incluído no `uv sync`, pois a instalação depende da sua GPU/CPU e da versão do CUDA que você possui.
 ```bash
-# 1. por garantia execute esse comando
-pip uninstall -y torch torchvision torchaudio
+# 1. por garantia execute esses comandos:
+uv pip uninstall torch torchvision torchaudio 
+
+uv remove torch
 
 # 2. Identifique a versão do CUDA suportada pela sua GPU:
 nvcc --version
@@ -105,16 +99,34 @@ Instale a versão correta de acordo com seu sistema diretamente do [site oficial
 **CPU-only (mais seguro para evitar problemas):**
 
 ```bash
-pip install torch --index-url https://download.pytorch.org/whl/cpu
+uv pip install torch --index-url https://download.pytorch.org/whl/cpu
 ```
 
-**Com suporte a GPU (CUDA 11.8, por exemplo):**
+**Com suporte a GPU (CUDA 12.8, por exemplo):**
 
 ```bash
-pip install torch --index-url https://download.pytorch.org/whl/cu118
+uv pip install torch --index-url https://download.pytorch.org/whl/cu128
 ```
 
 ---
+
+**Verificando a instalação**
+
+Execute esse comando para verificar a instalação:
+
+```
+python -c "import torch; print(torch.cuda.is_available())"
+```
+> Se retornar True, o PyTorch está usando sua GPU dedicada.
+
+Use este comando no terminal Python para verificar se o PyTorch está usando sua GPU dedicada:
+
+```
+python -c "import torch; print(torch.cuda.current_device(), torch.cuda.get_device_name(torch.cuda.current_device()) if torch.cuda.is_available() else 'CUDA not available')"
+```
+> Se mostrar o nome da sua GPU, o PyTorch está usando a GPU dedicada. Se aparecer "CUDA not available", está usando apenas CPU.
+
+
 
 
 
