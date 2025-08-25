@@ -1,7 +1,6 @@
 from typing import List
 import uuid
 from fastapi import HTTPException
-from openai import OpenAI
 from sqlmodel import Session, select
 
 from blabinha_api.apps.accounts.models import User
@@ -25,10 +24,21 @@ class ChatService:
         return self.session.get_one(Chat, id)  # TODO: await with Async Session
 
     async def get_one_from(self, user: User, id: UUID) -> Chat:
+        # Admin users can access any chat
+        if user.is_admin:
+            return self.session.exec(select(Chat).where(Chat.id == id)).one()
+        # Regular users can only access their own chats
         return self.session.exec(select(Chat).where(Chat.id == id, Chat.user_id == user.id)).one()
 
     async def get_all(self) -> list[Chat]:
         return list(self.session.exec(select(Chat)).all())
+
+    async def get_all_for_user(self, user: User) -> list[Chat]:
+        # Admin users can access all chats
+        if user.is_admin:
+            return list(self.session.exec(select(Chat)).all())
+        # Regular users can only access their own chats
+        return list(self.session.exec(select(Chat).where(Chat.user_id == user.id)).all())
 
 
     async def get_history(self, id: uuid.UUID) -> list[str]:
@@ -56,7 +66,8 @@ class ChatService:
 
     async def update(self, id: uuid.UUID, props: ChatUpdate, user: User) -> Chat:
         dbchat = self.session.get_one(Chat, id)
-        if dbchat.user_id != user.id:
+        # Allow admin users to update any chat
+        if not user.is_admin and dbchat.user_id != user.id:
             raise HTTPException(status_code=403, detail="Operation not allowed")
         chat_data = props.model_dump(exclude_unset=True)
 
@@ -69,12 +80,13 @@ class ChatService:
 
     async def delete(self, id: uuid.UUID, user: User) -> None:
         chat = self.session.get_one(Chat, id)
-        if chat.user_id != user.id:
+        # Allow admin users to delete any chat
+        if not user.is_admin and chat.user_id != user.id:
             raise HTTPException(status_code=403, detail="Operation not allowed")
         self.session.delete(chat)
         self.session.commit()
 
-    
+
     async def enviaResultados(self, respostas) -> List[str]:
         perguntas = []
         for r in respostas:
@@ -86,11 +98,8 @@ class ChatService:
         return perguntas
 
 
-        
-        # Retorno a resposta do GPT formatada
-        return falaLLM_total
-
     async def get_suggestions(self, id: uuid.UUID, user: User, api_key: str) -> List[str]:
+        # get_one_from already handles admin access
         chat = await self.get_one_from(user, id)
         historico = ""
         for dialog in chat.dialogs:
@@ -113,6 +122,4 @@ class ChatService:
         perguntas = await self.enviaResultados([response])  # passa como lista
 
         print("Perguntas geradas:", perguntas)
-        return perguntas 
-
-
+        return perguntas
