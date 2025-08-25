@@ -23,10 +23,11 @@ router = APIRouter(prefix="/chats", tags=["chats"])
     "/", response_model=list[ChatPublic], status_code=status.HTTP_200_OK
 )
 async def list_chat(*,
-    user: Annotated[User, Depends(get_current_user)] ,
+    user: Annotated[User, Depends(get_current_user)],
+    chat_service: Annotated[services.ChatService, Depends(get_chat_service)],
 ):
     """Retorna a lista de chats do usuário logado"""
-    return user.chats
+    return chat_service.get_all_for_user(user)
 
 @router.get(
     "/{id}", response_model=ChatPublicWithDialogs, status_code=status.HTTP_200_OK
