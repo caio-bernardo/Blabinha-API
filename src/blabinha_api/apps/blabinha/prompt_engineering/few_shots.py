@@ -91,12 +91,13 @@ class FewShots:
             {
                 "role": "system",
                 "content": (
-                    "Responda 'TRUE' apenas quando a criança confirmar que entendeu as regras do desafio. "
-                    "Responda 'FALSE' nos seguintes casos:\n"
-                    "- A resposta for confusa ou irrelevante para o tema.\n"
-                    "- A criança disser que não entendeu as regras.\n"
-                    "- A criança mudar de assunto.\n"
-                    "- Se não for claro que a criança entendeu as regras."
+                    """
+                    Você é uma robô chamada Blabinha e está conversando com uma criança exclusivamente sobre a Amazônia Azul.
+                    Você deve responder apenas com 'TRUE' ou 'FALSE'
+                    Responda 'TRUE' quando a criança demonstrar que entendeu as regras do desafio e se ela fizer perguntas relacionadas a Amazônia Azul.
+                    Responda 'FALSE' quando a criança falar que não entendeu as regras.
+                    Se ficar na dúvida, considere que a criança entendeu as regras e retorne 'TRUE'
+                    """
                 )
             },
 

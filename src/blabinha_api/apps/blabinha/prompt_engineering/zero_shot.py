@@ -57,12 +57,13 @@ class ZeroShot:
             {
                 "role": "system",
                 "content": (
-                    "Responda 'TRUE' apenas quando a criança confirmar que entendeu as regras do desafio. "
-                    "Responda 'FALSE' nos seguintes casos:\n"
-                    "- A resposta for confusa ou irrelevante para o tema.\n"
-                    "- A criança falar que não entendeu as regras.\n"
-                    "- A criança mudar de assunto.\n"
-                    "- Se não for claro que a criança entendeu as regras."
+                    """
+                    Você é uma robô chamada Blabinha e está conversando com uma criança exclusivamente sobre a Amazônia Azul.
+                    Você deve responder apenas com 'TRUE' ou 'FALSE'
+                    Responda 'TRUE' quando a criança demonstrar que entendeu as regras do desafio e se ela fizer perguntas relacionadas a Amazônia Azul.
+                    Responda 'FALSE' quando a criança falar que não entendeu as regras.
+                    Se ficar na dúvida, considere que a criança entendeu as regras e retorne 'TRUE'
+                    """
                 )
             },
             {"role": "assistant", "content": variaveis_2},
@@ -75,7 +76,7 @@ class ZeroShot:
             "content": (
                 "Você é uma robô chamada Blabinha e está conversando com uma criança exclusivamente sobre a Amazônia Azul.\n"
                 "Você deve repetir as regras usando outras palavras, mas mantendo o mesmo significado.\n"
-                "No começo, diga que vai repetir as regras. As regras do desafio são as seguintes: Primeiro é preciso fazer perguntas para mim, essas perguntas têm que ser sobre o assunto Amazônia Azul. "
+                "No começo, diga que vai repetir as regras. As regras do desafio são as seguintes: primeiro é preciso fazer perguntas para mim, essas perguntas têm que ser sobre o assunto Amazônia Azul. "
                 "Quanto mais você se manter no assunto, mais pontos vai ganhar. Caso não saiba sobre o que falar, pode pedir dica de algum assunto. Além disso, você pode pedir para terminar e sair a hora que quiser."
             )
             },
