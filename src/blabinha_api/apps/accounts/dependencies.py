@@ -11,6 +11,7 @@ from blabinha_api.config import settings
 
 from .services import UserService
 from .models import User
+from fastapi import HTTPException, status
 
 
 def get_user_service(session: Annotated[Session, Depends(get_db_session)]) -> UserService:
@@ -41,3 +42,15 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], user_s
     if user is None:
         raise credentials_exception()
     return user
+
+async def get_admin_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+    """
+    Check if the current user has admin privileges. If not, raise an HTTP 403 Forbidden exception.
+    """
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return current_user
