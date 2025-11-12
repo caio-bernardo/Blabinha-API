@@ -1,6 +1,6 @@
 # Rodando com o Swagger UI
 
-O FastAPI vem com uma documentação integrada do _Swagger UI_ que espelha as ferramentas da aplicação. Você pode confir-la no endpoint `/docs`. Essa documentação é **interativa**, então você rodar os comandos vistos nas outras seções de modo mais **amigável**.
+O FastAPI vem com uma documentação integrada do _Swagger UI_ que espelha as ferramentas da aplicação. Você pode conferi-la no endpoint `/docs`. Essa documentação é **interativa**, então você rodar os comandos vistos nas outras seções de modo mais **amigável**.
 
 ## Autenticando
 
