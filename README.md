@@ -65,6 +65,6 @@ Isso criará um script na pasta _migrations_. O alembic cobre a maioria dos caso
 ```bash
 alembic upgrade -1
 ```
-Onde -1 é a migração relativa à atual. Esse parâmetro também pode ser o id da migração.
+Onde $-1$ é a migração relativa à atual. Esse parâmetro também pode ser o id da migração.
 
 > As vezes deletar a base de dados e rodar a migração de novo pode resolver conflitos de dados.
