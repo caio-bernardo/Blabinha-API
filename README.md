@@ -68,3 +68,8 @@ alembic upgrade -1
 Onde $-1$ é a migração relativa à atual. Esse parâmetro também pode ser o id da migração.
 
 > As vezes deletar a base de dados e rodar a migração de novo pode resolver conflitos de dados.
+> 
+
+## Licensa
+
+Este projeto está sobre a _MIT License_, para saber o que você pode ou não fazer com esse projeto veja a [licensa](/LICENSE).
